@@ -21,16 +21,6 @@ public class Program
         Game game = new Game();
 
         //Game Loop
-
-        game.GameStart();
-        bool GameOver = false;
-
-        while (!GameOver)
-        {
-            game.PlayOneHand();
-            GameOver = true;
-        }
-
-        game.GameEnd();
+        
     }
 }

@@ -15,12 +15,15 @@ namespace PokerLibrary
         public string Name { get; set; }
         public  decimal Chips { get; set; }
 
+        public List<Card>? Cards { get; set; }
+
         public Act Action { get; set; }
 
         public Player(string name, decimal chips) {
         
             this.Name = name; 
             this.Chips = chips;
+            this.Cards = new List<Card>() { new Card(Rank.None, Suit.None), new Card(Rank.None, Suit.None) };
 
         } 
 
