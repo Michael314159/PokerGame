@@ -128,6 +128,30 @@ namespace PokerLibrary
 
         public static List<Seat> MoveBigBlindButton(List<Seat> seats)
         {
+            //if this is the first
+
+            //No big blind button
+            if (seats.Where(x => x.IsBigBlind).Count() == 0)
+            {
+                //Not enoiugh active Seats
+                if (seats.Where(x => x.IsPlaying).Count() < 2)
+                {
+                    return seats;
+                }
+                else
+                {
+                    //just pick one
+                    foreach (Seat s in seats)
+                    {
+                        if (s.IsSmallBlind == false && s.IsDealer == false)
+                        {
+                            s.IsBigBlind = true;
+                            return seats;
+                        }
+                    }
+                }
+
+            }
             //What we want: the next clockwise Seat that is eligible to play
 
             //What we have: the list of seats.
@@ -135,13 +159,13 @@ namespace PokerLibrary
             //in what sequence do we interview potental new buttons?
             //If the current DB is seat 4, then 5,6,7,8,9,1,2,3,4 .....
 
-            Seat currentDealerButtonSeat = new Seat(0);
-            currentDealerButtonSeat = seats.First(x => x.IsDealer == true);
-            int currentDealerButtonSeatNumber = currentDealerButtonSeat.Number;
+            Seat currentBigBlindButtonSeat = new Seat(0);
+            currentBigBlindButtonSeat = seats.First(x => x.IsDealer == true);
+            int currentBigBlindButtonSeatNumber = currentBigBlindButtonSeat.Number;
 
             List<int> interviewSequence;
 
-            switch (currentDealerButtonSeatNumber)
+            switch (currentBigBlindButtonSeatNumber)
             {
                 case 1: interviewSequence = new List<int>() { 2, 3, 4, 5, 6, 7, 8, 9, 1 }; break;
                 case 2: interviewSequence = new List<int>() { 3, 4, 5, 6, 7, 8, 9, 1, 2 }; break;
@@ -168,8 +192,8 @@ namespace PokerLibrary
                 if (seats[idx].IsPlaying == true)
                 {
                     //bingo
-                    seats[idx].IsDealer = true;
-                    seats[Seat.CurrentSeatIndex(currentDealerButtonSeatNumber)].IsDealer = false;
+                    seats[idx].IsBigBlind = true;
+                    seats[Seat.CurrentSeatIndex(currentBigBlindButtonSeatNumber)].IsBigBlind = false;
                     return seats;
                 }
 
@@ -183,6 +207,31 @@ namespace PokerLibrary
 
         public static List<Seat> MoveSmallBlindButton(List<Seat> seats)
         {
+
+            //if this is the first
+
+            //No small blind button
+            if (seats.Where(x => x.IsSmallBlind).Count() == 0)
+            {
+                //Not enoiugh active Seats
+                if (seats.Where(x => x.IsPlaying).Count() < 2)
+                {
+                    return seats;
+                }
+                else
+                {
+                    //just pick one
+                    foreach (Seat s in seats)
+                    {
+                        if (s.IsBigBlind == false && s.IsDealer == false)
+                        {
+                            s.IsSmallBlind = true;
+                            return seats;
+                        }
+                    }
+                }
+
+            }
             //What we want: the next clockwise Seat that is eligible to play
 
             //What we have: the list of seats.
@@ -190,13 +239,13 @@ namespace PokerLibrary
             //in what sequence do we interview potental new buttons?
             //If the current DB is seat 4, then 5,6,7,8,9,1,2,3,4 .....
 
-            Seat currentDealerButtonSeat = new Seat(0);
-            currentDealerButtonSeat = seats.First(x => x.IsDealer == true);
-            int currentDealerButtonSeatNumber = currentDealerButtonSeat.Number;
+            Seat currentSmallBlindButtonSeat = new Seat(0);
+            currentSmallBlindButtonSeat = seats.First(x => x.IsSmallBlind == true);
+            int currentSmallBlindButtonSeatNumber = currentSmallBlindButtonSeat.Number;
 
             List<int> interviewSequence;
 
-            switch (currentDealerButtonSeatNumber)
+            switch (currentSmallBlindButtonSeatNumber)
             {
                 case 1: interviewSequence = new List<int>() { 2, 3, 4, 5, 6, 7, 8, 9, 1 }; break;
                 case 2: interviewSequence = new List<int>() { 3, 4, 5, 6, 7, 8, 9, 1, 2 }; break;
@@ -224,7 +273,7 @@ namespace PokerLibrary
                 {
                     //bingo
                     seats[idx].IsDealer = true;
-                    seats[Seat.CurrentSeatIndex(currentDealerButtonSeatNumber)].IsDealer = false;
+                    seats[Seat.CurrentSeatIndex(currentSmallBlindButtonSeatNumber)].IsSmallBlind = false;
                     return seats;
                 }
 

@@ -51,64 +51,158 @@ namespace PokerLibrary
 
             StartUp();
 
+            bool gameover = false;
+
+            while (!gameover)
+            {
+                DealPreFlop();
+                PlayPreFlop();
+                DealFlop();
+                PlayFlop();
+                DealTurn();
+                PlayTurn();
+                DealRiver();
+                PlayRiver();
+                AwardPots();
+
+                ShowSeats();
+
+                Console.WriteLine("Enter 'q' to quit, any key to play another hand,");
+                char answer = (char)Console.Read();
+                Console.WriteLine(answer);
+
+                if (answer == 'q')
+                {
+                    gameover = true;
+                }
+            }
+
+            ShutDown();
+            
+
         }
 
+        private void AwardPots()
+        {
+            Console.WriteLine(System.Reflection.MethodBase.GetCurrentMethod()!.Name);
+        }
+
+        private void PlayRiver()
+        {
+            Console.WriteLine(System.Reflection.MethodBase.GetCurrentMethod()!.Name);
+        }
+
+        private void DealRiver()
+        {
+            Console.WriteLine(System.Reflection.MethodBase.GetCurrentMethod()!.Name);
+        }
+
+        private void PlayTurn()
+        {
+            Console.WriteLine(System.Reflection.MethodBase.GetCurrentMethod()!.Name);
+        }
+
+        private void DealTurn()
+        {
+            Console.WriteLine(System.Reflection.MethodBase.GetCurrentMethod()!.Name);
+        }
+
+        private void PlayFlop()
+        {
+            Console.WriteLine(System.Reflection.MethodBase.GetCurrentMethod()!.Name);
+        }
+
+        private void DealFlop()
+        {
+            Console.WriteLine(System.Reflection.MethodBase.GetCurrentMethod()!.Name);
+        }
+
+        private void PlayPreFlop()
+        {
+            Console.WriteLine(System.Reflection.MethodBase.GetCurrentMethod()!.Name);
+        }
+
+        private void DealPreFlop()
+        {
+            Console.WriteLine(System.Reflection.MethodBase.GetCurrentMethod()!.Name);
+
+            //TODO shiffle the deck
+
+            //dealing to elibible seats starting in the first after the Dealer Button
+
+            List<int> dealingSequence = PreflopDealingSequence(_seats);
+
+            int idx = 0;
+
+            //we have a dealing sequence.
+            //the _seat list index is one less than the seat numner
+            //if the seat is active and has a player, it gets a card - otherwise is skiooed
+
+            foreach (int i in dealingSequence)
+            {
+                idx = i - 1;
+                if (_seats[idx].IsPlaying == true && _seats[idx].Player != null)
+                {
+                    _seats[idx].Player.Cards.Clear();
+                    _seats[idx].Player.Cards.Add(DealFromDeck());
+                   
+
+
+                }
+            }
+
+            //deal second card....
+            foreach (int i in dealingSequence)
+            {
+                idx = i - 1;
+                if (_seats[idx].IsPlaying == true && _seats[idx].Player != null)
+                {
+                    _seats[idx].Player.Cards.Add(DealFromDeck());
+
+
+
+                }
+            }
+
+
+
+        }
+
+        private Card DealFromDeck()
+        {
+            Card c = new Card(Rank.None,Suit.None);
+            c = _deck.First();
+            _deck.RemoveAt(0);
+
+            return c;
+        }
 
         public  void StartUp()
         {
-            ShowGame();
-           
+            //ShowGame();
+            ShowSeats();
+            SeatPlayers(_seats, _players); //this fills all seats with active players. full table
+            ShowSeats();
+            MoveButtons(_seats);            //set initial buttons
+            ShowSeats();
+
+
 
         }
         public void ShowGame()
         {
             //No changes so no need to retrun objects
 
+           
+        }
 
-            //ShowSeats();
-           // ShowPlayers();
-            
-           // _seats[2].IsPlaying = true;
-            //_seats[2].AddPlayer(_players[0]);
-            //_seats[4].IsPlaying = true;
-            //_seats[4].IsDealer = true;
-            //_seats[4].AddPlayer(_players[1]);
-            //_seats[5].IsPlaying = false;
-            //
-            //_seats[5].AddPlayer(_players[2]);
+        private List<Seat> MoveButtons(List<Seat> seats)
+        {
+            MoveDealerButton(seats);
+            MoveSmallBlindButton(seats);
+            MoveBigBlindButton(seats);
 
-            // ShowSeats();
-            // ShowPlayers();
-            //ShowDeck();
-
-            ShowSeats();
-
-            //
-
-            SeatPlayers(_seats,_players);
-
-            ShowSeats();
-
-            MoveDealerButton(_seats);
-            MoveDealerButton(_seats);
-
-            MoveDealerButton(_seats);
-            MoveDealerButton(_seats);
-            MoveDealerButton(_seats);
-
-            MoveDealerButton(_seats);
-
-            MoveDealerButton(_seats);
-            MoveDealerButton(_seats);
-
-            MoveDealerButton(_seats);
-            MoveDealerButton(_seats);
-            MoveDealerButton(_seats);
-
-
-
-            ShowSeats();
-
+            return new List<Seat>(seats);
         }
         private List<Seat> MoveDealerButton(List<Seat> seats)
         {
@@ -134,7 +228,34 @@ namespace PokerLibrary
 
         }
 
+        private List<int> PreflopDealingSequence(List<Seat> seats)
+        {
+            List<int> interviewSequence;
 
+           
+            Seat currentSmallBlindButtonSeat = new Seat(0);
+            currentSmallBlindButtonSeat = seats.First(x => x.IsSmallBlind == true);
+            int currentSmallBlindButtonSeatNumber = currentSmallBlindButtonSeat.Number;
+
+
+            switch (currentSmallBlindButtonSeatNumber)
+            {
+                case 2: interviewSequence = new List<int>() { 2, 3, 4, 5, 6, 7, 8, 9, 1 }; break;
+                case 3: interviewSequence = new List<int>() { 3, 4, 5, 6, 7, 8, 9, 1, 2 }; break;
+                case 4: interviewSequence = new List<int>() { 4, 5, 6, 7, 8, 9, 1, 2, 3 }; break;
+                case 5: interviewSequence = new List<int>() { 5, 6, 7, 8, 9, 1, 2, 3, 4 }; break;
+                case 6: interviewSequence = new List<int>() { 6, 7, 8, 9, 1, 2, 3, 4, 5 }; break;
+                case 7: interviewSequence = new List<int>() { 7, 8, 9, 1, 2, 3, 4, 5, 6 }; break;
+                case 8: interviewSequence = new List<int>() { 8, 9, 1, 2, 3, 4, 5, 6, 7 }; break;
+                case 9: interviewSequence = new List<int>() { 9, 1, 2, 3, 4, 5, 6, 7, 8 }; break;
+                case 1: interviewSequence = new List<int>() { 1, 2, 3, 4, 5, 6, 7, 8, 9 }; break;
+
+                default:
+                    interviewSequence = new List<int>() { 1, 2, 3, 4, 5, 6, 7, 8, 9 }; break; ;
+            }
+
+            return interviewSequence;
+        }
 
         private List<Pot> MakePots(List<Pot> pots)
         {
@@ -195,16 +316,26 @@ namespace PokerLibrary
 
         private List<Seat> SeatPlayers(List<Seat> seats , List<Player> players)
         {
-            //for eats of the nine seats....
-            for (int i = 0; i < seats.Count; i++)
+            // up to 9 plauers form player list
+            for (int j = 0; j < players.Count; j++)
             {
-                // up to 9 plauers form player list
-                for (int j = 0; j < players.Count; j++)
-                {
-                    seats[i].Player = players[j];
+                seats[j].Player = players[j];
 
-                }
             }
+
+
+
+
+            ////for eats of the nine seats....
+            //for (int i = 0; i < seats.Count; i++)
+            //{
+            //    // up to 9 plauers form player list
+            //    for (int j = 0; j < players.Count; j++)
+            //    {
+            //        seats[i].Player = players[j];
+
+            //    }
+            //}
 
             //make them all active for now...;
 
@@ -262,6 +393,14 @@ namespace PokerLibrary
                 sb.Append($"isDealer: {s.IsDealer.ToString()} ");
                 sb.Append($"isSmallBlind: {s.IsSmallBlind.ToString()} ");
                 sb.Append($"isBigBlind: {s.IsBigBlind.ToString()} ");
+
+                if (s.Player?.Cards != null)
+                {
+                    foreach (Card c in s.Player.Cards)
+                    {
+                        sb.Append($" {c.ToString()}");
+                    }
+                }
 
                 sb.AppendLine();
 
@@ -332,6 +471,9 @@ namespace PokerLibrary
 
         }
 
-
+        public void ShutDown()
+        {
+            Console.WriteLine("In Shutdown,,,,,");
+        }
     }
 }
