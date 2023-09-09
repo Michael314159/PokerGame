@@ -18,8 +18,10 @@ public class Program
 
 
         // From yhe poker library
-        Game game = new Game();
+        // Game game = new Game();
 
+        HiLevelGame game = new HiLevelGame();
+        game.StartGame();
         //Game Loop
         
     }

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace PokerLibrary
 {
-    public enum Act
+    public enum PlayerActions
     {
         Fold,Check,Call,Bet,Raise,Reraise,AllIn
     }
@@ -17,7 +17,6 @@ namespace PokerLibrary
 
         public List<Card>? Cards { get; set; }
 
-        public Act Action { get; set; }
 
         public Player(string name, decimal chips) {
         
@@ -27,6 +26,8 @@ namespace PokerLibrary
 
         } 
 
+        //Make a decision
+     
 
     }
 }

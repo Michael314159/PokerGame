@@ -119,7 +119,7 @@ namespace PokerLibrary
 
         private void PlayPreFlop()
         {
-            Console.WriteLine(System.Reflection.MethodBase.GetCurrentMethod()!.Name);
+          
         }
 
         private void DealPreFlop()
