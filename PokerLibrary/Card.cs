@@ -20,6 +20,8 @@ namespace PokerLibrary
         public Rank Rank { get; set; }
         public Suit Suit { get; set;}
 
+        public int Number {  get; set; }
+
         public Card()
         {
             this.Rank = Rank.None;
@@ -31,6 +33,8 @@ namespace PokerLibrary
             Rank = rank;
             Suit = suit;
         }
+
+      
 
         public override string ToString()
         {
