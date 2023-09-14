@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -29,6 +30,10 @@ namespace PokerLibrary
         List<Pot> _pots;
         decimal _current_bet;
 
+        // This object contains the compler gameState
+
+
+
         //Simple Constructor for now - eventually it should take arguments.
         public HiLevelGame()
         {
@@ -41,7 +46,7 @@ namespace PokerLibrary
             this._pots = new List<Pot>();
             this._current_bet = 0;
 
-           
+           StartGame();
         }
         private void PostConstructorTasks()
         {
@@ -63,7 +68,38 @@ namespace PokerLibrary
         {
             PostConstructorTasks();
             Gameloop();
+            //_deck = QuickCheck(_deck);
+        }
 
+        private void ShowSeats()
+        {
+            StringBuilder sb = new StringBuilder();
+
+            foreach (Seat s in this._seats)
+            {
+
+                // sb.AppendLine(s.Player!.Name + " " + s.Player.Chips.ToString() + "Cards:" + s.Player.Cards[0].ToString() +
+
+                sb.Append(s.Name.ToString() + " ");
+                sb.Append($"isPlaying: {s.IsPlaying.ToString()} ");
+                sb.Append($"isDealer: {s.IsDealer.ToString()} ");
+                sb.Append($"isSmallBlind: {s.IsSmallBlind.ToString()} ");
+                sb.Append($"isBigBlind: {s.IsBigBlind.ToString()} ");
+
+                if (s.Player?.Cards != null)
+                {
+                    foreach (Card c in s.Player.Cards)
+                    {
+                        sb.Append($" {c.ToString()}");
+                    }
+                }
+
+                sb.AppendLine();
+
+            }
+
+            Console.WriteLine(sb.ToString());
+            Console.WriteLine();
         }
 
         private void Gameloop()
@@ -94,15 +130,62 @@ namespace PokerLibrary
                if (answer == "p")
                 {
                     PlayAHand();
-
                 }
-
 
 
             }
 
         }
+        private List<Card> QuickCheck(List<Card> cards)
+        {
+            var basicQuery = (from card in cards
+                              select card).ToList();
+            var basicQuery2 = (from card in cards
+                               select new Card()
+                               {
+                                   
+                                   Rank = card.Rank,
+                                   Suit = Suit.None
+                               }
+                              ).ToList();
 
+            List<int> cardNumbers = new List<int>()
+            {
+                1,2,3,4,5,6,7,8,9,10,11,12,13,
+                14,15,16,17,18,19,20,21,22,23,
+                24,25,26,27,28,29,30,31,32,33,
+                34,35,36,37,38,39,40,41,42,43,
+                44,45,46,47,48,49,50,51,52
+            };
+            
+
+
+            var TransformIntoDeckQuery = (from num in cardNumbers
+                                          select new Card()
+                                          {
+                                              Rank = (Rank)num,
+                                              Suit = Suit.None
+                                          }).ToList();
+           
+           
+
+            var basicMethod = cards.Where(x => x.Rank == Rank.Six)
+                                    .ToList();
+
+            List<Card> halfdeck = new List<Card>();
+
+            halfdeck = basicQuery.ToList();
+
+            foreach (Card card in TransformIntoDeckQuery)
+            {
+                Console.WriteLine(card.ToString());
+            }
+
+            return cards;
+
+           
+
+        }
         private void PlayAHand()
         {
             Console.WriteLine(System.Reflection.MethodBase.GetCurrentMethod()!.Name);
@@ -120,6 +203,9 @@ namespace PokerLibrary
         private void AwardPots()
         {
             Console.WriteLine(System.Reflection.MethodBase.GetCurrentMethod()!.Name);
+
+            Console.WriteLine("EXTENSION");
+            _ = _deck.ShowCards();
         }
 
         private void PlayRiver()
@@ -195,14 +281,50 @@ namespace PokerLibrary
         private List<Seat> MakeSeats(List<Seat> seats)
         {
             Console.WriteLine(System.Reflection.MethodBase.GetCurrentMethod()!.Name);
+            //for (int i = 1;i < 10; i++)
+            //{
+            //    seats.Add(new Seat(i));
+            //}
+
+            //List<int> seatnumbers = new List<int>() { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+
+            var seatnumbers = Enumerable.Range(1, 9).ToList();
+
+            seatnumbers.ForEach(x => 
+            {
+                seats.Add(new Seat(x));
+            });
+
+
+          
+
             return seats;
+
+
         }
 
         private List<Card> MakeDeck(List<Card> deck)
         {
             Console.WriteLine(System.Reflection.MethodBase.GetCurrentMethod()!.Name);
+
+            var cardnumbers = Enumerable.Range(1, 52).ToList();
+            
+
+            cardnumbers.ForEach(x =>
+            {
+                Rank rank = (Rank)((x % 13) + 1);   //we add '1' because the enums start at 0=none 
+                Suit suit = (Suit)((x % 4) + 1);
+                deck.Add(new Card(rank, suit));
+            });
+
+
+
             return deck;
         }
+
+
+
+       
     }
 }
 

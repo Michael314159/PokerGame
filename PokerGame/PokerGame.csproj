@@ -8,6 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\PokerLibrary.NUnitTest\PokerLibrary.NUnitTest.csproj" />
     <ProjectReference Include="..\PokerLibrary\PokerLibrary.csproj" />
   </ItemGroup>
 

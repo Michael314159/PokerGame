@@ -5,11 +5,15 @@
 // Game Entry
 
 using PokerLibrary;
+using PokerLibrary.NUnitTest;
 
 public class Program
 {
     private static void Main(string[] args)
     {
+       
+
+
         Console.WriteLine("--------------------------");
         Console.WriteLine("You are executing PokerGame");
         Console.WriteLine("__________________________");
@@ -21,8 +25,6 @@ public class Program
         // Game game = new Game();
 
         HiLevelGame game = new HiLevelGame();
-        game.StartGame();
-        //Game Loop
         
     }
 }

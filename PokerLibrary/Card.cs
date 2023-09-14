@@ -20,7 +20,6 @@ namespace PokerLibrary
         public Rank Rank { get; set; }
         public Suit Suit { get; set;}
 
-        public int Number {  get; set; }
 
         public Card()
         {
