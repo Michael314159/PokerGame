@@ -9,35 +9,38 @@ using System.Threading.Tasks;
 namespace PokerLibrary
 {
     /// <summary>
-    /// To Facilitate a functional architecture, begin the task in a modular, expandabe fashion.
+    /// To Facilitate a functional architecture, write the game in a modular, expandabe fashion.
     /// </summary>
     public class HiLevelGame
     {
-        // Define the Game's objects. Thins that will need to be disoplayed and things the
-        // fame model will use to run the model.
+        // Define the Game's objects. 
+        //
+        // The game_state wil contain references to all the game objects.
+        // We will pass this List of references to each funstion that needs it, and
+        // REPLACE the game_state with the changes made by the function.
+        //
+        // We are trying to avoid any function that modifies ANY data outsite of itself.
+        //
+        // That means any change in the game is made by a process of tight functions.
 
-        //It may be best this list is exhaustive at first. refactoring will tidy thing up.
-
-
-        //start with that which must have a visual interface AND be part of the model
-
-
-
+       
         List<Card> _deck;
         List<Seat> _seats;
         List<Player> _players;
         List<Card> _board;
         List<Pot> _pots;
         decimal _current_bet;
+        List<string> _gamelog;
+        int _last_return_code;
 
-        // This object contains the compler gameState
+        // This object contains the complete gameState
 
+        GameState _game_state;
 
-
-        //Simple Constructor for now - eventually it should take arguments.
-        public HiLevelGame()
+        //Simple Constructor for now
+        public  HiLevelGame()
         {
-            Console.WriteLine(System.Reflection.MethodBase.GetCurrentMethod()!.Name);
+           // gamestate.LogMessages.Add($"{DateTime.Now} +  In  { System.Reflection.MethodBase.GetCurrentMethod()!.Name}");
 
             this._deck = new List<Card>();
             this._seats = new List<Seat>();
@@ -45,66 +48,44 @@ namespace PokerLibrary
             this._board = new List<Card>();
             this._pots = new List<Pot>();
             this._current_bet = 0;
-
-           StartGame();
-        }
-        private void PostConstructorTasks()
-        {
-
-            Console.WriteLine(System.Reflection.MethodBase.GetCurrentMethod()!.Name);
-
-            // Use a private function even for the most trivial to avoid futuer bloating
+            this._gamelog = new List<string>();
+            this._last_return_code = -1;
 
             this._deck = MakeDeck(_deck);
             this._seats = MakeSeats(_seats);
             this._players = MakePlayers(_players);
             this._board = MakeBoard(_board);
             this._pots = MakePots(_pots);
-            this._current_bet = MakeCurrentBet();
+            this._gamelog = MakeGameLog(_gamelog);
+            this._current_bet = MakeCurrentBet(_current_bet);
 
+            this._game_state = new GameState(_seats, _players, _deck, _board, _current_bet,
+                                                _last_return_code, _gamelog);
+
+
+            //Run the game
+            
+            Gameloop(_game_state!);
+
+
+       
         }
+
+        private List<string> MakeGameLog(List<string> log)
+        {
+            DateTime now = DateTime.Now;
+
+            log.Add($"{now} +  GAMELOG Starting...............");
            
-        public void StartGame()
-        {
-            PostConstructorTasks();
-            Gameloop();
-            //_deck = QuickCheck(_deck);
+            return log;
+
         }
 
-        private void ShowSeats()
+        private  void Gameloop(GameState gamestate)
         {
-            StringBuilder sb = new StringBuilder();
+            //Console.WriteLine(System.Reflection.MethodBase.GetCurrentMethod()!.Name);
+            gamestate.LogMessages.Add($"In {System.Reflection.MethodBase.GetCurrentMethod()!.Name}");
 
-            foreach (Seat s in this._seats)
-            {
-
-                // sb.AppendLine(s.Player!.Name + " " + s.Player.Chips.ToString() + "Cards:" + s.Player.Cards[0].ToString() +
-
-                sb.Append(s.Name.ToString() + " ");
-                sb.Append($"isPlaying: {s.IsPlaying.ToString()} ");
-                sb.Append($"isDealer: {s.IsDealer.ToString()} ");
-                sb.Append($"isSmallBlind: {s.IsSmallBlind.ToString()} ");
-                sb.Append($"isBigBlind: {s.IsBigBlind.ToString()} ");
-
-                if (s.Player?.Cards != null)
-                {
-                    foreach (Card c in s.Player.Cards)
-                    {
-                        sb.Append($" {c.ToString()}");
-                    }
-                }
-
-                sb.AppendLine();
-
-            }
-
-            Console.WriteLine(sb.ToString());
-            Console.WriteLine();
-        }
-
-        private void Gameloop()
-        {
-            Console.WriteLine(System.Reflection.MethodBase.GetCurrentMethod()!.Name);
 
             bool gameover = false;
 
@@ -112,175 +93,240 @@ namespace PokerLibrary
             {
 
 
-                Console.WriteLine("Simple game loop.");
+                Console.WriteLine("Welcome to the game!.");
                 Console.WriteLine("");
 
                 Console.WriteLine("Enter 'q' to quit.");
                 Console.WriteLine("Enter 'p' to play a hand.");
 
                 string answer = Console.ReadLine() ?? "q";
-                Console.WriteLine(answer);
 
                 if (answer == "q")
                 {
-                    EndGame();
+
+                    GameEnding(gamestate);
                     gameover = true;
                 }
 
                if (answer == "p")
                 {
-                    PlayAHand();
+                   gamestate =  PlayAHand(gamestate);
                 }
 
 
             }
 
         }
-        private List<Card> QuickCheck(List<Card> cards)
+
+        private GameState GameEnding(GameState gamestate)
         {
-            var basicQuery = (from card in cards
-                              select card).ToList();
-            var basicQuery2 = (from card in cards
-                               select new Card()
-                               {
-                                   
-                                   Rank = card.Rank,
-                                   Suit = Suit.None
-                               }
-                              ).ToList();
+            //The game is created and enters the game loop.
+            //When the game loop ends, print the log
+            gamestate.LogMessages.Add($"In {System.Reflection.MethodBase.GetCurrentMethod()!.Name}");
 
-            List<int> cardNumbers = new List<int>()
-            {
-                1,2,3,4,5,6,7,8,9,10,11,12,13,
-                14,15,16,17,18,19,20,21,22,23,
-                24,25,26,27,28,29,30,31,32,33,
-                34,35,36,37,38,39,40,41,42,43,
-                44,45,46,47,48,49,50,51,52
-            };
-            
+            gamestate.LogMessages.Add($"{DateTime.Now} +  GAMELOG ENDING...............");
 
+            gamestate.LogMessages.ForEach(message => Console.WriteLine(message));
 
-            var TransformIntoDeckQuery = (from num in cardNumbers
-                                          select new Card()
-                                          {
-                                              Rank = (Rank)num,
-                                              Suit = Suit.None
-                                          }).ToList();
-           
-           
-
-            var basicMethod = cards.Where(x => x.Rank == Rank.Six)
-                                    .ToList();
-
-            List<Card> halfdeck = new List<Card>();
-
-            halfdeck = basicQuery.ToList();
-
-            foreach (Card card in TransformIntoDeckQuery)
-            {
-                Console.WriteLine(card.ToString());
-            }
-
-            return cards;
-
-           
-
-        }
-        private void PlayAHand()
-        {
-            Console.WriteLine(System.Reflection.MethodBase.GetCurrentMethod()!.Name);
-            DealPreFlop();
-            PlayPreFlop();
-            DealFlop();
-            PlayFlop();
-            DealTurn();
-            PlayTurn();
-            DealRiver();
-            PlayRiver();
-            AwardPots();
+            return gamestate;
         }
 
-        private void AwardPots()
+        private GameState PlayAHand(GameState gamestate)
         {
-            Console.WriteLine(System.Reflection.MethodBase.GetCurrentMethod()!.Name);
+            //Console.WriteLine(System.Reflection.MethodBase.GetCurrentMethod()!.Name);
+            gamestate.LogMessages.Add($"{DateTime.Now} +  In  { System.Reflection.MethodBase.GetCurrentMethod()!.Name}");
 
-            Console.WriteLine("EXTENSION");
-            _ = _deck.ShowCards();
+
+           // Console.WriteLine(gamestate.ToString());
+
+
+            gamestate = MoveDealerButton(gamestate);
+           // if( gamestate.Seats.Any(x => x.IsDealer == false) {  }
+            gamestate = MoveBigBlindButton(gamestate);
+            gamestate = MoveSmallBlindButton(gamestate);
+
+            //Console.WriteLine(gamestate.ToString());
+
+            gamestate = DealPreFlop(gamestate);
+            gamestate = PlayPreFlop(gamestate);
+            gamestate = DealFlop(gamestate);
+            gamestate = PlayFlop(gamestate);
+            gamestate = DealTurn(gamestate);
+            gamestate = PlayTurn(gamestate);
+            gamestate = DealRiver(gamestate);
+            gamestate = PlayRiver(gamestate);
+            gamestate = AwardPots(gamestate);
+
+            //Console.WriteLine("I played a handccccccccccccccccccccccccccc"); ;
+
+            return gamestate;
         }
 
-        private void PlayRiver()
+        private GameState MoveDealerButton(GameState gamestate)
         {
-            Console.WriteLine(System.Reflection.MethodBase.GetCurrentMethod()!.Name);
+            gamestate.LogMessages.Add($"{DateTime.Now} +  In  {System.Reflection.MethodBase.GetCurrentMethod()!.Name}");
+
+            //Seat should Know how t move buttons.....
+            List<Seat> seats = new List<Seat>();
+            seats = gamestate.Seats;
+
+            seats = Seat.MoveDealerButton(seats);
+
+            gamestate.Seats = seats;
+
+            return gamestate;
+        }
+        private GameState MoveBigBlindButton(GameState gamestate)
+        {
+            gamestate.LogMessages.Add($"{DateTime.Now} +  In  {System.Reflection.MethodBase.GetCurrentMethod()!.Name}");
+
+            //Seat should Know how t move buttons.....
+            List<Seat> seats = new List<Seat>();
+            seats = gamestate.Seats;
+
+            seats = Seat.MoveBigBlindButton(seats);
+
+            gamestate.Seats = seats;
+            return gamestate;
+        }
+        private GameState MoveSmallBlindButton(GameState gamestate)
+        {
+            gamestate.LogMessages.Add($"{DateTime.Now} +  In  {System.Reflection.MethodBase.GetCurrentMethod()!.Name}");
+
+            //Seat should Know how t move buttons.....
+            List<Seat> seats = new List<Seat>();
+            seats = gamestate.Seats;
+
+            seats = Seat.MoveSmallBlindButton(seats);
+
+            gamestate.Seats = seats;
+
+            return gamestate;
         }
 
-        private void DealRiver()
+        private GameState AwardPots(GameState gamestate)
         {
-            Console.WriteLine(System.Reflection.MethodBase.GetCurrentMethod()!.Name);
+            gamestate.LogMessages.Add($"{DateTime.Now} +  In  { System.Reflection.MethodBase.GetCurrentMethod()!.Name}");
+
+            return gamestate;
         }
 
-        private void PlayTurn()
+        private GameState PlayRiver(GameState gamestate)
         {
-            Console.WriteLine(System.Reflection.MethodBase.GetCurrentMethod()!.Name);
+            gamestate.LogMessages.Add($"{DateTime.Now} +  In  { System.Reflection.MethodBase.GetCurrentMethod()!.Name}");
+            return gamestate;
         }
 
-        private void DealTurn()
+        private GameState DealRiver(GameState gamestate)
         {
-            Console.WriteLine(System.Reflection.MethodBase.GetCurrentMethod()!.Name);
+            gamestate.LogMessages.Add($"{DateTime.Now} +  In  { System.Reflection.MethodBase.GetCurrentMethod()!.Name}");
+            return gamestate;
+
         }
 
-        private void PlayFlop()
+        private GameState PlayTurn(GameState gamestate)
         {
-            Console.WriteLine(System.Reflection.MethodBase.GetCurrentMethod()!.Name);
+     
+            gamestate.LogMessages.Add($"{DateTime.Now} +  In  { System.Reflection.MethodBase.GetCurrentMethod()!.Name}");
+            return gamestate;
+
         }
 
-        private void DealFlop()
+        private GameState DealTurn(GameState gamestate)
         {
-            Console.WriteLine(System.Reflection.MethodBase.GetCurrentMethod()!.Name);
+            gamestate.LogMessages.Add($"{DateTime.Now} +  In  { System.Reflection.MethodBase.GetCurrentMethod()!.Name}");
+            return gamestate;
+
         }
 
-        private void PlayPreFlop()
+        private GameState PlayFlop(GameState gamestate)
         {
-            Console.WriteLine(System.Reflection.MethodBase.GetCurrentMethod()!.Name);
+            gamestate.LogMessages.Add($"{DateTime.Now} +  In  { System.Reflection.MethodBase.GetCurrentMethod()!.Name}");
+
+            return gamestate;
         }
 
-        private void DealPreFlop()
+        private GameState DealFlop(GameState gamestate)
         {
-            Console.WriteLine(System.Reflection.MethodBase.GetCurrentMethod()!.Name);
+            gamestate.LogMessages.Add($"{DateTime.Now} +  In  { System.Reflection.MethodBase.GetCurrentMethod()!.Name}");
+            return gamestate;
+
         }
 
-        private void EndGame()
+        private GameState PlayPreFlop(GameState gamestate)
         {
-            Console.WriteLine(System.Reflection.MethodBase.GetCurrentMethod()!.Name);
+            gamestate.LogMessages.Add($"{DateTime.Now} +  In  { System.Reflection.MethodBase.GetCurrentMethod()!.Name}");
+            return gamestate;
+
         }
 
-        private decimal MakeCurrentBet()
+        private GameState DealPreFlop(GameState gamestate)
         {
-            Console.WriteLine(System.Reflection.MethodBase.GetCurrentMethod()!.Name);
-            return 0m;
+            gamestate.LogMessages.Add($"{DateTime.Now} +  In  { System.Reflection.MethodBase.GetCurrentMethod()!.Name}");
+            return gamestate;
+
+        }
+
+
+        private GameState EndGame(GameState gamestate)
+        {
+            gamestate.LogMessages.Add($"{DateTime.Now} +  In  { System.Reflection.MethodBase.GetCurrentMethod()!.Name}");
+            return gamestate;
+
+        }
+
+        private decimal MakeCurrentBet(decimal wager)
+        {
+            //gamestate.LogMessages.Add($"{DateTime.Now} +  In  { System.Reflection.MethodBase.GetCurrentMethod()!.Name}");
+            wager = 0;
+            return wager;
 
         }
 
         private List<Pot> MakePots(List<Pot> pots)
         {
-            Console.WriteLine(System.Reflection.MethodBase.GetCurrentMethod()!.Name);
+            //gamestate.LogMessages.Add($"{DateTime.Now} +  In  { System.Reflection.MethodBase.GetCurrentMethod()!.Name}");
+
+            pots.Clear();
+            pots.Add(new Pot(0)); pots.Add(new Pot(1)); pots.Add(new Pot(2));
+            pots.Add(new Pot(3)); pots.Add(new Pot(4)); pots.Add(new Pot(5));
+            pots.Add(new Pot(6)); pots.Add(new Pot(7)); pots.Add(new Pot(8));
+
             return pots;
         }
 
         private List<Card> MakeBoard(List<Card> board)
         {
-            Console.WriteLine(System.Reflection.MethodBase.GetCurrentMethod()!.Name);
+            //gamestate.LogMessages.Add($"{DateTime.Now} +  In  { System.Reflection.MethodBase.GetCurrentMethod()!.Name}");
+            board.Add(new Card(Rank.None,Suit.None));
+            board.Add(new Card(Rank.None, Suit.None));
+            board.Add(new Card(Rank.None, Suit.None));
+
+
             return board;
         }
 
         private List<Player> MakePlayers(List<Player> players)
         {
-            Console.WriteLine(System.Reflection.MethodBase.GetCurrentMethod()!.Name);
+            //gamestate.LogMessages.Add($"{DateTime.Now} +  In  { System.Reflection.MethodBase.GetCurrentMethod()!.Name}");
+            players.Clear();
+            players.Add(new Player("Arnold", 100));
+            players.Add(new Player("Barney", 200));
+            players.Add(new Player("Charles", 300));
+            players.Add(new Player("David", 400));
+            players.Add(new Player("Evelyn", 500));
+            players.Add(new Player("Frank", 600));
+            players.Add(new Player("George", 700));
+            players.Add(new Player("Harold", 800));
+            players.Add(new Player("Indira", 900));
+
+
             return players;
         }
 
         private List<Seat> MakeSeats(List<Seat> seats)
         {
-            Console.WriteLine(System.Reflection.MethodBase.GetCurrentMethod()!.Name);
+            //gamestate.LogMessages.Add($"{DateTime.Now} +  In  { System.Reflection.MethodBase.GetCurrentMethod()!.Name}");
             //for (int i = 1;i < 10; i++)
             //{
             //    seats.Add(new Seat(i));
@@ -305,7 +351,7 @@ namespace PokerLibrary
 
         private List<Card> MakeDeck(List<Card> deck)
         {
-            Console.WriteLine(System.Reflection.MethodBase.GetCurrentMethod()!.Name);
+            //gamestate.LogMessages.Add($"{DateTime.Now} +  In  { System.Reflection.MethodBase.GetCurrentMethod()!.Name}");
 
             var cardnumbers = Enumerable.Range(1, 52).ToList();
             

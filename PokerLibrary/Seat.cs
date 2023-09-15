@@ -44,10 +44,22 @@ namespace PokerLibrary
             this.Player = null;
         }
 
+        public override string ToString()
+        {
+            StringBuilder sb = new StringBuilder();
 
+            sb.Append(Name.ToString() + " ");
+            sb.Append($"isPlaying: {IsPlaying.ToString()} ");
+            sb.Append($"isDealer: {IsDealer.ToString()} ");
+            sb.Append($"isSmallBlind: {IsSmallBlind.ToString()} ");
+            sb.Append($"isBigBlind: {IsBigBlind.ToString()} ");
+            sb.AppendLine();
+
+            return sb.ToString();
+
+        }
 
         public static List<Seat> MoveDealerButton(List<Seat> seats)
-
         {
 
             //if this is the first
@@ -136,6 +148,7 @@ namespace PokerLibrary
                 //Not enoiugh active Seats
                 if (seats.Where(x => x.IsPlaying).Count() < 2)
                 {
+
                     return seats;
                 }
                 else

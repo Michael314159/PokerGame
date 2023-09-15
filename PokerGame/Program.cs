@@ -6,6 +6,7 @@
 
 using PokerLibrary;
 using PokerLibrary.NUnitTest;
+using System.Text;
 
 public class Program
 {
@@ -14,17 +15,9 @@ public class Program
        
 
 
-        Console.WriteLine("--------------------------");
-        Console.WriteLine("You are executing PokerGame");
-        Console.WriteLine("__________________________");
+       
 
-
-
-
-        // From yhe poker library
-        // Game game = new Game();
-
-        HiLevelGame game = new HiLevelGame();
-        
+        HiLevelGame game =  new HiLevelGame();
+       
     }
 }
