@@ -19,8 +19,8 @@ namespace PokerLibrary
         public Player? Player { get; set; }
 
 
-        //the game model will need to know where vatious buttons are, and, move them
 
+    
         public bool IsPlaying { get; set; }
         public bool IsDealer { get; set; }
         public bool IsBigBlind { get; set; }
@@ -59,84 +59,84 @@ namespace PokerLibrary
 
         }
 
-        public static List<Seat> MoveDealerButton(List<Seat> seats)
-        {
+        //public static List<Seat> MoveDealerButton(List<Seat> seats)
+        //{
 
-            //if this is the first
+        //    //if this is the first
 
-            //No Dealer button
-            if (seats.Where(x => x.IsDealer).Count() == 0)
-            {
-                //Not enoiugh active Seats
-                if (seats.Where( x => x.IsPlaying).Count() < 2)
-                {
-                    return seats;
-                } else
-                {
-                    //just pick one
-                    foreach (Seat s in seats)
-                    {
-                        if (s.IsPlaying == true)
-                        {
-                            s.IsDealer = true;
-                            return seats;
-                        }
-                    }
-                }
+        //    //No Dealer button
+        //    if (seats.Where(x => x.IsDealer).Count() == 0)
+        //    {
+        //        //Not enoiugh active Seats
+        //        if (seats.Where( x => x.IsPlaying).Count() < 2)
+        //        {
+        //            return seats;
+        //        } else
+        //        {
+        //            //just pick one
+        //            foreach (Seat s in seats)
+        //            {
+        //                if (s.IsPlaying == true)
+        //                {
+        //                    s.IsDealer = true;
+        //                    return seats;
+        //                }
+        //            }
+        //        }
 
-            }
-            //What we want: the next clockwise Seat that is eligible to play
+        //    }
+        //    //What we want: the next clockwise Seat that is eligible to play
 
-            //What we have: the list of seats.
+        //    //What we have: the list of seats.
 
-            //in what sequence do we interview potental new buttons?
-            //If the current DB is seat 4, then 5,6,7,8,9,1,2,3,4 .....
+        //    //in what sequence do we interview potental new buttons?
+        //    //If the current DB is seat 4, then 5,6,7,8,9,1,2,3,4 .....
 
-            Seat currentDealerButtonSeat = new Seat(0);
-            currentDealerButtonSeat = seats.First(x => x.IsDealer == true);
-            int currentDealerButtonSeatNumber = currentDealerButtonSeat.Number;
+        //    Seat currentDealerButtonSeat = new Seat(0);
+        //    currentDealerButtonSeat = seats.First(x => x.IsDealer == true);
+        //    int currentDealerButtonSeatNumber = currentDealerButtonSeat.Number;
 
-            List<int> interviewSequence; 
+        //    List<int> interviewSequence; 
 
-            switch (currentDealerButtonSeatNumber)
-            {
-                case 1: interviewSequence = new List<int>() { 2, 3, 4, 5, 6, 7, 8, 9, 1 }; break;
-                case 2: interviewSequence = new List<int>() { 3, 4, 5, 6, 7, 8, 9, 1, 2 }; break;
-                case 3: interviewSequence = new List<int>() { 4, 5, 6, 7, 8, 9, 1, 2, 3 }; break;
-                case 4: interviewSequence = new List<int>() { 5, 6, 7, 8, 9, 1, 2, 3, 4 }; break;
-                case 5: interviewSequence = new List<int>() { 6, 7, 8, 9, 1, 2, 3, 4, 5 }; break;
-                case 6: interviewSequence = new List<int>() { 7, 8, 9, 1, 2, 3, 4, 5, 6 }; break;
-                case 7: interviewSequence = new List<int>() { 8, 9, 1, 2, 3, 4, 5, 6, 7 }; break;
-                case 8: interviewSequence = new List<int>() { 9, 1, 2, 3, 4, 5, 6, 7, 8 }; break;
-                case 9: interviewSequence = new List<int>() { 1, 2, 3, 4, 5, 6, 7, 8, 9 }; break;
+        //    switch (currentDealerButtonSeatNumber)
+        //    {
+        //        case 1: interviewSequence = new List<int>() { 2, 3, 4, 5, 6, 7, 8, 9, 1 }; break;
+        //        case 2: interviewSequence = new List<int>() { 3, 4, 5, 6, 7, 8, 9, 1, 2 }; break;
+        //        case 3: interviewSequence = new List<int>() { 4, 5, 6, 7, 8, 9, 1, 2, 3 }; break;
+        //        case 4: interviewSequence = new List<int>() { 5, 6, 7, 8, 9, 1, 2, 3, 4 }; break;
+        //        case 5: interviewSequence = new List<int>() { 6, 7, 8, 9, 1, 2, 3, 4, 5 }; break;
+        //        case 6: interviewSequence = new List<int>() { 7, 8, 9, 1, 2, 3, 4, 5, 6 }; break;
+        //        case 7: interviewSequence = new List<int>() { 8, 9, 1, 2, 3, 4, 5, 6, 7 }; break;
+        //        case 8: interviewSequence = new List<int>() { 9, 1, 2, 3, 4, 5, 6, 7, 8 }; break;
+        //        case 9: interviewSequence = new List<int>() { 1, 2, 3, 4, 5, 6, 7, 8, 9 }; break;
 
-                default:
-                    interviewSequence = new List<int>() { 1, 2, 3, 4, 5, 6, 7, 8, 9 }; break; ;
-            }
+        //        default:
+        //            interviewSequence = new List<int>() { 1, 2, 3, 4, 5, 6, 7, 8, 9 }; break; ;
+        //    }
 
-            foreach (int s in interviewSequence)
-            {
-                Console.WriteLine(s.ToString());
-                //this is the seat number order we need to check to find the next DB
-                //if the current DbSeatNumber is 5 for instance, this sequence will be 6,7,8,9,1,2,3,4,5
+        //    foreach (int s in interviewSequence)
+        //    {
+        //        Console.WriteLine(s.ToString());
+        //        //this is the seat number order we need to check to find the next DB
+        //        //if the current DbSeatNumber is 5 for instance, this sequence will be 6,7,8,9,1,2,3,4,5
 
-                int idx = s - 1;  //the seat index is 1 less than the seat number
+        //        int idx = s - 1;  //the seat index is 1 less than the seat number
 
-                if (seats[idx].IsPlaying == true)
-                {
-                    //bingo
-                    seats[idx].IsDealer = true;
-                    seats[Seat.CurrentSeatIndex(currentDealerButtonSeatNumber)].IsDealer = false;
-                    return seats;
-                }
+        //        if (seats[idx].IsPlaying == true)
+        //        {
+        //            //bingo
+        //            seats[idx].IsDealer = true;
+        //            seats[Seat.CurrentSeatIndex(currentDealerButtonSeatNumber)].IsDealer = false;
+        //            return seats;
+        //        }
 
-            }
+        //    }
            
            
-            return seats;
+        //    return seats;
             
           
-        }
+        //}
 
         public static List<Seat> MoveBigBlindButton(List<Seat> seats)
         {

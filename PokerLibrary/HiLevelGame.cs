@@ -6,6 +6,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
+
 namespace PokerLibrary
 {
     /// <summary>
@@ -23,7 +24,7 @@ namespace PokerLibrary
         //
         // That means any change in the game is made by a process of tight functions.
 
-       
+
         List<Card> _deck;
         List<Seat> _seats;
         List<Player> _players;
@@ -38,9 +39,9 @@ namespace PokerLibrary
         GameState _game_state;
 
         //Simple Constructor for now
-        public  HiLevelGame()
+        public HiLevelGame()
         {
-           // gamestate.LogMessages.Add($"{DateTime.Now} +  In  { System.Reflection.MethodBase.GetCurrentMethod()!.Name}");
+            // gamestate.LogMessages.Add($"{DateTime.Now} +  In  { System.Reflection.MethodBase.GetCurrentMethod()!.Name}");
 
             this._deck = new List<Card>();
             this._seats = new List<Seat>();
@@ -64,11 +65,11 @@ namespace PokerLibrary
 
 
             //Run the game
-            
+
             Gameloop(_game_state!);
 
 
-       
+
         }
 
         private List<string> MakeGameLog(List<string> log)
@@ -76,18 +77,21 @@ namespace PokerLibrary
             DateTime now = DateTime.Now;
 
             log.Add($"{now} +  GAMELOG Starting...............");
-           
+
             return log;
 
         }
 
-        private  void Gameloop(GameState gamestate)
+        private void Gameloop(GameState gamestate)
         {
             //Console.WriteLine(System.Reflection.MethodBase.GetCurrentMethod()!.Name);
             gamestate.LogMessages.Add($"In {System.Reflection.MethodBase.GetCurrentMethod()!.Name}");
 
 
             bool gameover = false;
+
+            //TODO find a better way to start the game.
+            gamestate.Seats[0].IsDealer = true;
 
             while (gameover != true)
             {
@@ -108,16 +112,27 @@ namespace PokerLibrary
                     gameover = true;
                 }
 
-               if (answer == "p")
+                if (answer == "p")
                 {
-                   gamestate =  PlayAHand(gamestate);
+                    
+                    gamestate = PlayAHand(gamestate);
+                    
                 }
 
 
             }
 
         }
+       
+        private GameState LogMessage(GameState gamestate, string message)
+        {
+            gamestate.LogMessages.Add($"{DateTime.Now} XXXX {message}");
 
+
+
+            return gamestate;
+        }
+    
         private GameState GameEnding(GameState gamestate)
         {
             //The game is created and enters the game loop.
@@ -134,14 +149,32 @@ namespace PokerLibrary
         private GameState PlayAHand(GameState gamestate)
         {
             //Console.WriteLine(System.Reflection.MethodBase.GetCurrentMethod()!.Name);
-            gamestate.LogMessages.Add($"{DateTime.Now} +  In  { System.Reflection.MethodBase.GetCurrentMethod()!.Name}");
+            gamestate.LogMessages.Add($"{DateTime.Now} +  In  {System.Reflection.MethodBase.GetCurrentMethod()!.Name}");
+
+            //seat some players
+            gamestate = MakeTestTable(gamestate);
+
+            StringBuilder sb = new StringBuilder();
+
+            gamestate.Seats.ForEach( x =>
+                    {
+                        sb.AppendLine(x.ToString());
+                    });
+
+            gamestate = LogMessage(gamestate, sb.ToString());
 
 
-           // Console.WriteLine(gamestate.ToString());
+            if (gamestate.Seats.Where( x => x.IsPlaying).Count() < 2)
+            {
+                gamestate.LogMessages.Add("Not Enough Players");
+                return gamestate;
+
+            }
+            // Console.WriteLine(gamestate.ToString());
 
 
             gamestate = MoveDealerButton(gamestate);
-           // if( gamestate.Seats.Any(x => x.IsDealer == false) {  }
+            // if( gamestate.Seats.Any(x => x.IsDealer == false) {  }
             gamestate = MoveBigBlindButton(gamestate);
             gamestate = MoveSmallBlindButton(gamestate);
 
@@ -162,17 +195,42 @@ namespace PokerLibrary
             return gamestate;
         }
 
-        private GameState MoveDealerButton(GameState gamestate)
+        // The begging and ending seat can change depeding on what part of the game and what seats are actvie
+
+      
+
+    private GameState MoveDealerButton(GameState gamestate)
         {
             gamestate.LogMessages.Add($"{DateTime.Now} +  In  {System.Reflection.MethodBase.GetCurrentMethod()!.Name}");
 
-            //Seat should Know how t move buttons.....
-            List<Seat> seats = new List<Seat>();
-            seats = gamestate.Seats;
+            //If this is no dealer button, just assign one.
 
-            seats = Seat.MoveDealerButton(seats);
+            if (gamestate.Seats.Any(x => x.IsDealer == false)) {
+                gamestate.Seats[0].IsDealer = true;
+            }
+            var dealerseatnumber = gamestate.Seats.Where(x => x.IsDealer).First().Number;
 
-            gamestate.Seats = seats;
+            var activeplayers = gamestate.Seats.Where(x => x.IsPlaying == true).OrderBy(x => x.Number).ToList();
+
+            // is ther an active player whose sest number is > current dea;er set number?
+            if (activeplayers.Any(x => x.Number > dealerseatnumber)) {
+
+                // if true it is the next seatnumber
+                var nextSeatNumber = activeplayers.Where( x => x.Number > dealerseatnumber).First().Number;
+                // now we can move it
+                gamestate.Seats[dealerseatnumber - 1].IsDealer = false;
+                gamestate.Seats[nextSeatNumber].IsDealer = true;
+
+            } else
+            {
+                // if False, we can just grab the firast available sest
+                var nextSeatNumber = activeplayers.First().Number;
+                // now we can move it
+                gamestate.Seats[dealerseatnumber - 1].IsDealer = false;
+                gamestate.Seats[nextSeatNumber].IsDealer = true;
+            }
+
+           
 
             return gamestate;
         }
@@ -180,7 +238,7 @@ namespace PokerLibrary
         {
             gamestate.LogMessages.Add($"{DateTime.Now} +  In  {System.Reflection.MethodBase.GetCurrentMethod()!.Name}");
 
-            //Seat should Know how t move buttons.....
+            //Seat should Know how to move buttons.....
             List<Seat> seats = new List<Seat>();
             seats = gamestate.Seats;
 
@@ -349,6 +407,18 @@ namespace PokerLibrary
 
         }
 
+        private GameState MakeTestTable( GameState gamestate)
+        {
+            //fill a table for testing
+            gamestate.Seats[0].IsPlaying = true;
+            gamestate.Seats[2].IsPlaying = true;
+            gamestate.Seats[3].IsPlaying = true;
+            gamestate.Seats[8].IsPlaying = true;
+
+
+
+            return gamestate;
+        }
         private List<Card> MakeDeck(List<Card> deck)
         {
             //gamestate.LogMessages.Add($"{DateTime.Now} +  In  { System.Reflection.MethodBase.GetCurrentMethod()!.Name}");

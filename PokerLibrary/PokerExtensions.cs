@@ -26,6 +26,10 @@ namespace PokerLibrary
 
             return sb.ToString();
         }
+
+       
+
+
         public static bool IsStraight(this List<Card> cards)
         {
             //List<Rank> RankCardRanks = new List<Rank>();

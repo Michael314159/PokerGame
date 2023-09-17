@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Runtime.CompilerServices;
+using System.Text;
 
 namespace PokerLibrary
 {
@@ -31,43 +32,5 @@ namespace PokerLibrary
             LogMessages = logMessages;
         }
 
-        public override string ToString()
-        {
-            StringBuilder sbGame = new StringBuilder();
-            StringBuilder sbSeats = new StringBuilder();
-            StringBuilder sbPlayers = new StringBuilder();
-            StringBuilder sbBoard = new StringBuilder();
-            StringBuilder sbDeck = new StringBuilder();
-            StringBuilder sbPots = new StringBuilder();
-            StringBuilder sbWager = new StringBuilder();
-
-            foreach (Seat seat in Seats)
-            {
-                sbSeats.Append(seat.ToString());
-            }
-
-            foreach (Seat seat in Seats)
-            {
-                if (seat.Player != null)
-                {
-                    sbPlayers.AppendLine(seat.Player.Name);
-                }
-            }
-
-           
-
-            //sbGame.AppendLine(sbPlayers.ToString());
-
-            //this.Seats.Select(s => s.Player != null).ToList()
-            //                    .ForEach(s => sbPlayers.AppendLine(s.ToString()));
-
-            StringBuilder ret = new StringBuilder();
-
-            ret.AppendLine(sbSeats.ToString());
-            ret.AppendLine(sbPlayers.ToString());
-
-
-            return ret.ToString();
-        }
-    }
+    }   
 }
