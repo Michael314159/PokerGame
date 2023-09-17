@@ -1,6 +1,7 @@
 ﻿using System.Runtime.CompilerServices;
 using System.Text;
 
+
 namespace PokerLibrary
 {
     internal class GameState
@@ -30,6 +31,27 @@ namespace PokerLibrary
             this.CurrentWager = wager;
             LastReturnCode = lastReturnCode;
             LogMessages = logMessages;
+        }
+
+        public void WriteLog()
+        {
+            string dataPath = @"C:\Users\micha\pokergame.log";
+            File.WriteAllLines(dataPath, this.LogMessages);
+
+
+
+        }
+        private string ShowSeats()
+        {
+            StringBuilder sb = new StringBuilder();
+
+            this.Seats.ForEach(x => sb.AppendLine(x.ToString()));
+
+            return sb.ToString();
+        }
+        public override string ToString()
+        {
+            return ShowSeats();
         }
 
     }   

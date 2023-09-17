@@ -90,9 +90,6 @@ namespace PokerLibrary
 
             bool gameover = false;
 
-            //TODO find a better way to start the game.
-            gamestate.Seats[0].IsDealer = true;
-
             while (gameover != true)
             {
 
@@ -143,6 +140,7 @@ namespace PokerLibrary
 
             gamestate.LogMessages.ForEach(message => Console.WriteLine(message));
 
+            gamestate.WriteLog();
             return gamestate;
         }
 
@@ -154,14 +152,14 @@ namespace PokerLibrary
             //seat some players
             gamestate = MakeTestTable(gamestate);
 
-            StringBuilder sb = new StringBuilder();
+            //StringBuilder sb = new StringBuilder();
 
-            gamestate.Seats.ForEach( x =>
-                    {
-                        sb.AppendLine(x.ToString());
-                    });
+            //gamestate.Seats.ForEach( x =>
+            //        {
+            //            sb.AppendLine(x.ToString());
+            //        });
 
-            gamestate = LogMessage(gamestate, sb.ToString());
+            //gamestate = LogMessage(gamestate, sb.ToString());
 
 
             if (gamestate.Seats.Where( x => x.IsPlaying).Count() < 2)
@@ -202,63 +200,56 @@ namespace PokerLibrary
     private GameState MoveDealerButton(GameState gamestate)
         {
             gamestate.LogMessages.Add($"{DateTime.Now} +  In  {System.Reflection.MethodBase.GetCurrentMethod()!.Name}");
-
+             //gamestate = LogMessage(gamestate , gamestate.ToString());
             //If this is no dealer button, just assign one.
 
-            if (gamestate.Seats.Any(x => x.IsDealer == false)) {
+            if (gamestate.Seats.All(x => x.IsDealer == false)) {
                 gamestate.Seats[0].IsDealer = true;
+                return gamestate;
             }
-            var dealerseatnumber = gamestate.Seats.Where(x => x.IsDealer).First().Number;
 
-            var activeplayers = gamestate.Seats.Where(x => x.IsPlaying == true).OrderBy(x => x.Number).ToList();
+            var dealerseatnumber = gamestate.Seats.Where(x => x.IsDealer).OrderBy(x => x.Number).First().Number;
+
+           // var activeplayers = gamestate.Seats.Where(x => x.IsPlaying == true).OrderBy(x => x.Number).ToList();
 
             // is ther an active player whose sest number is > current dea;er set number?
-            if (activeplayers.Any(x => x.Number > dealerseatnumber)) {
+            if (gamestate.Seats.Any(x => x.Number > dealerseatnumber && x.IsPlaying)) {
 
                 // if true it is the next seatnumber
-                var nextSeatNumber = activeplayers.Where( x => x.Number > dealerseatnumber).First().Number;
+                var nextSeatNumber = gamestate.Seats.Where( x => x.Number > dealerseatnumber && x.IsPlaying)
+                                        .OrderBy(x => x.Number).First().Number;
                 // now we can move it
-                gamestate.Seats[dealerseatnumber - 1].IsDealer = false;
-                gamestate.Seats[nextSeatNumber].IsDealer = true;
+                gamestate.Seats.Where(x => x.IsDealer).OrderBy(x => x.Number).First().IsDealer = false;
+
+                gamestate.Seats.Where(x => x.Number == nextSeatNumber).OrderBy(x => x.Number).First().IsDealer = true;
 
             } else
             {
                 // if False, we can just grab the firast available sest
-                var nextSeatNumber = activeplayers.First().Number;
+                var nextSeatNumber = gamestate.Seats.Where(x => x.Number < dealerseatnumber && x.IsPlaying)
+                                       .OrderBy(x => x.Number).First().Number;
                 // now we can move it
-                gamestate.Seats[dealerseatnumber - 1].IsDealer = false;
-                gamestate.Seats[nextSeatNumber].IsDealer = true;
+                gamestate.Seats.Where(x => x.IsDealer).OrderBy(x => x.Number).First().IsDealer = false;
+
+                gamestate.Seats.Where(x => x.Number == nextSeatNumber).OrderBy(x => x.Number).First().IsDealer = true;
+
             }
 
-           
+
+            LogMessage(gamestate, gamestate.ToString());
 
             return gamestate;
         }
         private GameState MoveBigBlindButton(GameState gamestate)
         {
-            gamestate.LogMessages.Add($"{DateTime.Now} +  In  {System.Reflection.MethodBase.GetCurrentMethod()!.Name}");
-
-            //Seat should Know how to move buttons.....
-            List<Seat> seats = new List<Seat>();
-            seats = gamestate.Seats;
-
-            seats = Seat.MoveBigBlindButton(seats);
-
-            gamestate.Seats = seats;
+           
             return gamestate;
         }
         private GameState MoveSmallBlindButton(GameState gamestate)
         {
             gamestate.LogMessages.Add($"{DateTime.Now} +  In  {System.Reflection.MethodBase.GetCurrentMethod()!.Name}");
 
-            //Seat should Know how t move buttons.....
-            List<Seat> seats = new List<Seat>();
-            seats = gamestate.Seats;
-
-            seats = Seat.MoveSmallBlindButton(seats);
-
-            gamestate.Seats = seats;
-
+           
             return gamestate;
         }
 

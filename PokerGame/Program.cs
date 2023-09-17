@@ -6,18 +6,16 @@
 
 using PokerLibrary;
 using PokerLibrary.NUnitTest;
+using System.Diagnostics;
 using System.Text;
 
 public class Program
 {
     private static void Main(string[] args)
     {
-       
+        HiLevelGame game = new HiLevelGame();
 
 
-       
 
-        HiLevelGame game =  new HiLevelGame();
-       
     }
 }
