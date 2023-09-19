@@ -13,7 +13,10 @@ public class Program
 {
     private static void Main(string[] args)
     {
-        HiLevelGame game = new HiLevelGame();
+       //HiLevelGame game = new HiLevelGame();
+
+
+       TheGame theGame = new TheGame();
 
 
 

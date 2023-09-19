@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http.Headers;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -44,19 +45,44 @@ namespace PokerLibrary
             this.Player = null;
         }
 
+
+
+        //Get all the properties and their valuse for this instance
+        
+        private PropertyInfo[] RetrieveProperties()
+        {
+            //object is this instance
+            var type = this.GetType();
+            return type.GetProperties();
+        }
+
         public override string ToString()
         {
-            StringBuilder sb = new StringBuilder();
+            StringBuilder sb = new();
 
-            sb.AppendLine();
-            sb.Append(Name.ToString() + " ");
-            sb.Append($"isPlaying: {IsPlaying.ToString()} ");
-            sb.Append($"isDealer: {IsDealer.ToString()} ");
-            sb.Append($"isSmallBlind: {IsSmallBlind.ToString()} ");
-            sb.Append($"isBigBlind: {IsBigBlind.ToString()} ");
+            //// A dictionary that contains every instance Propertie and its value
+            //Dictionary<string, object> dictProperties = new Dictionary<string, object>();
+
+            //// Get all of this instances properties and values
+            //var varProperties = RetrieveProperties();
+
+            ////Create a dictionary to hold this property information
+            //foreach (var property in varProperties)
+            //{
+            //    dictProperties.Add(property.Name, property.GetValue(this));
+            //}
+
+            ////Use this info for the ToString override
+            //foreach (var item in dictProperties)
+            //{
+            //    sb.AppendLine(item.Key + ": " + item.Value);
+            //}
+            //Summarry line of most relevant info
+            sb.Append($"|SEAT NUMBER {Number} |DB {IsDealer} |SB {IsSmallBlind} |BB {IsBigBlind}");
 
             return sb.ToString();
 
         }
+       
     }
 }

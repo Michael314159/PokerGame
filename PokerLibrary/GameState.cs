@@ -1,5 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
 using System.Text;
+using System.Xml.Linq;
 
 
 namespace PokerLibrary
@@ -14,6 +15,7 @@ namespace PokerLibrary
 
         public int LastReturnCode = 0;
         public List<string> LogMessages { get; set; }
+        public List<string> LogGameView { get; set; }
 
 
         public GameState(List<Seat> seats,
@@ -22,7 +24,8 @@ namespace PokerLibrary
                             List<Card> board,
                             decimal wager,
                             int lastReturnCode,
-                            List<string> logMessages)
+                            List<string> logMessages,
+                            List<string> logGameView)
         {
             this.Seats = seats;
             this.Players = players;
@@ -31,6 +34,7 @@ namespace PokerLibrary
             this.CurrentWager = wager;
             LastReturnCode = lastReturnCode;
             LogMessages = logMessages;
+            LogGameView = logGameView;
         }
 
         public void WriteLog()
@@ -41,18 +45,53 @@ namespace PokerLibrary
 
 
         }
-        private string ShowSeats()
+
+        public void WriteGameView()
+        {
+            string dataPath = @"C:\Users\micha\pokergame.txt";
+            File.WriteAllLines(dataPath, this.LogGameView);
+
+
+
+        }
+
+        public override string ToString()
         {
             StringBuilder sb = new StringBuilder();
 
-            this.Seats.ForEach(x => sb.AppendLine(x.ToString()));
+            sb.AppendLine($"GameStateView");
+
+            StringBuilder sbSeats = new StringBuilder();
+            foreach (Seat seat in this.Seats)
+            {
+                sbSeats.AppendLine($"{seat.Name} playing:{seat.IsPlaying.ToString()}" +
+                    $" db:{seat.IsDealer.ToString()} sb:{seat.IsSmallBlind.ToString()}" +
+                    $" bb:{seat.IsBigBlind.ToString()}");
+            }
+            sbSeats.ToString();
+
+            sb.AppendLine($"{sbSeats}");
+            sb.AppendLine($"");
+            sb.AppendLine($"");
+            sb.AppendLine($"");
+            sb.AppendLine($"");
+            sb.AppendLine($"");
+            sb.AppendLine($"");
+            sb.AppendLine($"");
+            sb.AppendLine($"");
+            sb.AppendLine($"");
+            sb.AppendLine($"");
+            sb.AppendLine($"");
+            sb.AppendLine($"");
+            sb.AppendLine($"");
+            sb.AppendLine($"");
+
+
+
 
             return sb.ToString();
         }
-        public override string ToString()
-        {
-            return ShowSeats();
-        }
+
 
     }   
 }

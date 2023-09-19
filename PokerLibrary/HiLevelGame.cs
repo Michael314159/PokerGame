@@ -33,6 +33,7 @@ namespace PokerLibrary
         decimal _current_bet;
         List<string> _gamelog;
         int _last_return_code;
+        List<string> _gameview;
 
         // This object contains the complete gameState
 
@@ -51,6 +52,7 @@ namespace PokerLibrary
             this._current_bet = 0;
             this._gamelog = new List<string>();
             this._last_return_code = -1;
+            this._gameview = new List<string>();
 
             this._deck = MakeDeck(_deck);
             this._seats = MakeSeats(_seats);
@@ -58,10 +60,12 @@ namespace PokerLibrary
             this._board = MakeBoard(_board);
             this._pots = MakePots(_pots);
             this._gamelog = MakeGameLog(_gamelog);
+            this._gamelog = MakeGameViewLog(_gamelog);
+
             this._current_bet = MakeCurrentBet(_current_bet);
 
             this._game_state = new GameState(_seats, _players, _deck, _board, _current_bet,
-                                                _last_return_code, _gamelog);
+                                                _last_return_code, _gamelog, _gameview);
 
 
             //Run the game
@@ -70,6 +74,15 @@ namespace PokerLibrary
 
 
 
+        }
+
+        private List<string> MakeGameViewLog(List<string> gameview)
+        {
+            DateTime now = DateTime.Now;
+
+            gameview.Add($"{now} +  GAMEVIEW Starting...............");
+
+            return gameview;
         }
 
         private List<string> MakeGameLog(List<string> log)
@@ -129,7 +142,16 @@ namespace PokerLibrary
 
             return gamestate;
         }
-    
+
+        private GameState GameStateChange(GameState gamestate, string message)
+        {
+            gamestate.LogMessages.Add($"{DateTime.Now} XXXX {message}");
+
+
+
+            return gamestate;
+        }
+
         private GameState GameEnding(GameState gamestate)
         {
             //The game is created and enters the game loop.
@@ -138,45 +160,44 @@ namespace PokerLibrary
 
             gamestate.LogMessages.Add($"{DateTime.Now} +  GAMELOG ENDING...............");
 
-            gamestate.LogMessages.ForEach(message => Console.WriteLine(message));
+           gamestate.LogMessages.ForEach(message => Console.WriteLine(message));
 
             gamestate.WriteLog();
+            gamestate.WriteGameView();
             return gamestate;
         }
 
         private GameState PlayAHand(GameState gamestate)
         {
+            
+
             //Console.WriteLine(System.Reflection.MethodBase.GetCurrentMethod()!.Name);
             gamestate.LogMessages.Add($"{DateTime.Now} +  In  {System.Reflection.MethodBase.GetCurrentMethod()!.Name}");
-
+            gamestate.LogGameView.Add($"{DateTime.Now} New hand Starting:");
             //seat some players
             gamestate = MakeTestTable(gamestate);
-
-            //StringBuilder sb = new StringBuilder();
-
-            //gamestate.Seats.ForEach( x =>
-            //        {
-            //            sb.AppendLine(x.ToString());
-            //        });
-
-            //gamestate = LogMessage(gamestate, sb.ToString());
-
 
             if (gamestate.Seats.Where( x => x.IsPlaying).Count() < 2)
             {
                 gamestate.LogMessages.Add("Not Enough Players");
+                gamestate.LogGameView.Add($"{DateTime.Now} Not enough players:");
+
                 return gamestate;
 
             }
-            // Console.WriteLine(gamestate.ToString());
+
+            //HACK 
+            gamestate.Seats[2].IsDealer = true;
 
 
             gamestate = MoveDealerButton(gamestate);
-            // if( gamestate.Seats.Any(x => x.IsDealer == false) {  }
+            gamestate.LogGameView.Add($"{DateTime.Now} Dealer Button Moved");
+            //gamestate.LogGameView.Add($"{DateTime.Now} {gamestate.ToString()}");
+
+
+
             gamestate = MoveBigBlindButton(gamestate);
             gamestate = MoveSmallBlindButton(gamestate);
-
-            //Console.WriteLine(gamestate.ToString());
 
             gamestate = DealPreFlop(gamestate);
             gamestate = PlayPreFlop(gamestate);
@@ -188,56 +209,166 @@ namespace PokerLibrary
             gamestate = PlayRiver(gamestate);
             gamestate = AwardPots(gamestate);
 
-            //Console.WriteLine("I played a handccccccccccccccccccccccccccc"); ;
-
             return gamestate;
         }
 
-        // The begging and ending seat can change depeding on what part of the game and what seats are actvie
+        private GameState MoveButtons(GameState gamestate)
+        {
+            return gamestate;
+        }
 
-      
-
-    private GameState MoveDealerButton(GameState gamestate)
+        private GameState MoveDealerButton(GameState gamestate)
         {
             gamestate.LogMessages.Add($"{DateTime.Now} +  In  {System.Reflection.MethodBase.GetCurrentMethod()!.Name}");
-             //gamestate = LogMessage(gamestate , gamestate.ToString());
-            //If this is no dealer button, just assign one.
+            
+            
 
-            if (gamestate.Seats.All(x => x.IsDealer == false)) {
-                gamestate.Seats[0].IsDealer = true;
-                return gamestate;
-            }
+            //HACK
+            gamestate.Seats[0].IsPlaying = true;
+            gamestate.Seats[2].IsPlaying = true;
+            gamestate.Seats[3].IsPlaying = true;
+            gamestate.Seats[8].IsPlaying = true;
 
-            var dealerseatnumber = gamestate.Seats.Where(x => x.IsDealer).OrderBy(x => x.Number).First().Number;
+            gamestate.Seats.ForEach(x => gamestate.LogGameView.Add(x.ToString()));
+            //llookuptable
 
-           // var activeplayers = gamestate.Seats.Where(x => x.IsPlaying == true).OrderBy(x => x.Number).ToList();
+            //int[] nums = { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
 
-            // is ther an active player whose sest number is > current dea;er set number?
-            if (gamestate.Seats.Any(x => x.Number > dealerseatnumber && x.IsPlaying)) {
+            //var seatTable = nums.ToLookup(k => k)
+            //                .Select(k => new KeyValuePair<int, int[]>
+            //                (k.Key, new int[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 }));
+            //var actionSequenceTable = seatTable.ToList();   
+            
+            //foreach ( var item in seatTable )
+            //{
+            //    if (item.Key == 1)
+            //    {
+            //        item.Value = nums.TakeWhile(k => k != 0).ToArray();
+            //    }
+            //}
 
-                // if true it is the next seatnumber
-                var nextSeatNumber = gamestate.Seats.Where( x => x.Number > dealerseatnumber && x.IsPlaying)
-                                        .OrderBy(x => x.Number).First().Number;
-                // now we can move it
-                gamestate.Seats.Where(x => x.IsDealer).OrderBy(x => x.Number).First().IsDealer = false;
+            //Current Active Seat
+            //var currentActiveSeat = gamestate.Seats
+            //                            .Where(x => x.IsDealer)
+            //                            .First();
+            //what would the 'last' lamda to select the next active seat look like?
+            // x => x  {
+            //                      seats.where( x => x.Number > actionSeatNumber
+            //                 }.First().Seat
 
-                gamestate.Seats.Where(x => x.Number == nextSeatNumber).OrderBy(x => x.Number).First().IsDealer = true;
+            //last code is....
 
-            } else
-            {
-                // if False, we can just grab the firast available sest
-                var nextSeatNumber = gamestate.Seats.Where(x => x.Number < dealerseatnumber && x.IsPlaying)
-                                       .OrderBy(x => x.Number).First().Number;
-                // now we can move it
-                gamestate.Seats.Where(x => x.IsDealer).OrderBy(x => x.Number).First().IsDealer = false;
+            //ForEach(s => s.....
 
-                gamestate.Seats.Where(x => x.Number == nextSeatNumber).OrderBy(x => x.Number).First().IsDealer = true;
-
-            }
+           
 
 
-            LogMessage(gamestate, gamestate.ToString());
+            ////this must be true, or modify code to check for null and exit 
+            //var dealerseatnumber = gamestate.Seats
+            //    .Where(x => x.IsDealer)
+            //    .First().Number;
+            ////this must be 3 or greater for concept testing
+            //var activeseatlist = Enumerable.Range(0, gamestate.Seats.Count)
+            //    .Select(i => gamestate.Seats[i])
+            //    .Where(j => j.IsPlaying)
+            //    .ToList();
 
+            //var activeseatnumbers = Enumerable.Range(0, activeseatlist.Count())
+            //    .Select(i => activeseatlist[i].Number)
+            //    .ToList();
+            ////gran the seatnumbers that are greater
+            //var activeseatsBigger = activeseatnumbers
+            //    .SkipWhile(x => x <= dealerseatnumber)
+            //    .ToList();
+            ////grab the seat numbers thst sre smaller
+            //var activeseatsSmaller = activeseatnumbers
+            //    .TakeWhile(x => x < dealerseatnumber)
+            //    .ToList();
+            //// action sequence is currentseat + bigger + smaller
+            
+            //List<int> actionsequence = new List<int>();
+            //actionsequence.Add(dealerseatnumber);
+            //for (int i = 0;i < activeseatsBigger.Count; i++)
+            //{
+            //    actionsequence.Add(activeseatsBigger[i]);
+
+            //}
+            //for (int j = 0; j < activeseatsBigger.Count; j++)
+            //{
+            //    actionsequence.Add(activeseatsSmaller[j]);
+
+            //}
+            //// next dealer seat is....
+
+            //int nextdealerseaternumber = 0;
+
+            //for (int k = 0; k < activeseatnumbers.Count; k++)
+            //{
+            //    if (activeseatlist[k].Number > dealerseatnumber)
+            //    {
+            //        //next dealer seat is...
+            //        nextdealerseaternumber = activeseatlist[k].Number;
+            //    }
+            //}
+
+            ////What is
+
+            ////[0,1,2,3,4,5,6,7,8]
+            //var seatNumberIndexes = Enumerable.Range(0, 9);
+
+            //int nextbuttonseatnumber = 10; //force error
+            //int currentbuttonseatnumber = 10; //force error 
+
+            ////find current button seat number
+            //foreach (int i in seatNumberIndexes) 
+            //{ 
+            //    if (gamestate.Seats[i].IsDealer)
+            //    {
+            //        currentbuttonseatnumber = gamestate.Seats[i].Number;
+            //    }
+            //}
+
+
+            ////find next button seat number
+            //foreach (int i in seatNumberIndexes)
+            //{
+            //    if ((gamestate.Seats[i].IsPlaying) &&
+            //        (gamestate.Seats[i].Number > currentbuttonseatnumber))
+            //    {
+            //        currentbuttonseatnumber = gamestate.Seats[i].Number;
+            //    }
+            //}
+
+
+            //////
+            ////foreach (int idx in seatNumberIndexes)
+            ////{
+            ////    if (gamestate.Seats[idx].Number > currentseatnumber)
+            ////    {
+            ////        nextdealerseaternumber = gamestate.Seats[idx].Number + 1;
+            ////    }
+            ////}
+
+
+
+
+            ////    //update gamestate
+            ////    foreach (int idx in seatNumberIndexes)
+            ////{
+            ////    //should it be updated?
+
+            ////    //set new button
+            ////    if (gamestate.Seats[idx].Number == nextseatnumber)
+            ////    {
+            ////        gamestate.Seats[idx].IsDealer = true;
+            ////    }
+            ////    //remove the old button
+            ////    if (gamestate.Seats[idx].Number == currentseatnumber)
+            ////    {
+            ////        gamestate.Seats[idx].IsDealer = false;
+            ////    }
+            ////    //otherwise no change
+            ////}
             return gamestate;
         }
         private GameState MoveBigBlindButton(GameState gamestate)
@@ -249,30 +380,31 @@ namespace PokerLibrary
         {
             gamestate.LogMessages.Add($"{DateTime.Now} +  In  {System.Reflection.MethodBase.GetCurrentMethod()!.Name}");
 
-           
-            return gamestate;
-        }
+            //First active seat to the right of the Deaslerbutton
 
+            //gamestate.LogGameView.Add($"{DateTime.Now} Small Blind Button Moved");
+            //gamestate.LogGameView.Add($"{DateTime.Now} {gamestate.ToString()}");
+
+            return gamestate;
+
+        }
         private GameState AwardPots(GameState gamestate)
         {
             gamestate.LogMessages.Add($"{DateTime.Now} +  In  { System.Reflection.MethodBase.GetCurrentMethod()!.Name}");
 
             return gamestate;
         }
-
         private GameState PlayRiver(GameState gamestate)
         {
             gamestate.LogMessages.Add($"{DateTime.Now} +  In  { System.Reflection.MethodBase.GetCurrentMethod()!.Name}");
             return gamestate;
         }
-
         private GameState DealRiver(GameState gamestate)
         {
             gamestate.LogMessages.Add($"{DateTime.Now} +  In  { System.Reflection.MethodBase.GetCurrentMethod()!.Name}");
             return gamestate;
 
         }
-
         private GameState PlayTurn(GameState gamestate)
         {
      
@@ -280,50 +412,42 @@ namespace PokerLibrary
             return gamestate;
 
         }
-
         private GameState DealTurn(GameState gamestate)
         {
             gamestate.LogMessages.Add($"{DateTime.Now} +  In  { System.Reflection.MethodBase.GetCurrentMethod()!.Name}");
             return gamestate;
 
         }
-
         private GameState PlayFlop(GameState gamestate)
         {
             gamestate.LogMessages.Add($"{DateTime.Now} +  In  { System.Reflection.MethodBase.GetCurrentMethod()!.Name}");
 
             return gamestate;
         }
-
         private GameState DealFlop(GameState gamestate)
         {
             gamestate.LogMessages.Add($"{DateTime.Now} +  In  { System.Reflection.MethodBase.GetCurrentMethod()!.Name}");
             return gamestate;
 
         }
-
         private GameState PlayPreFlop(GameState gamestate)
         {
             gamestate.LogMessages.Add($"{DateTime.Now} +  In  { System.Reflection.MethodBase.GetCurrentMethod()!.Name}");
             return gamestate;
 
         }
-
         private GameState DealPreFlop(GameState gamestate)
         {
             gamestate.LogMessages.Add($"{DateTime.Now} +  In  { System.Reflection.MethodBase.GetCurrentMethod()!.Name}");
             return gamestate;
 
         }
-
-
         private GameState EndGame(GameState gamestate)
         {
             gamestate.LogMessages.Add($"{DateTime.Now} +  In  { System.Reflection.MethodBase.GetCurrentMethod()!.Name}");
             return gamestate;
 
         }
-
         private decimal MakeCurrentBet(decimal wager)
         {
             //gamestate.LogMessages.Add($"{DateTime.Now} +  In  { System.Reflection.MethodBase.GetCurrentMethod()!.Name}");
@@ -331,7 +455,6 @@ namespace PokerLibrary
             return wager;
 
         }
-
         private List<Pot> MakePots(List<Pot> pots)
         {
             //gamestate.LogMessages.Add($"{DateTime.Now} +  In  { System.Reflection.MethodBase.GetCurrentMethod()!.Name}");
@@ -343,7 +466,6 @@ namespace PokerLibrary
 
             return pots;
         }
-
         private List<Card> MakeBoard(List<Card> board)
         {
             //gamestate.LogMessages.Add($"{DateTime.Now} +  In  { System.Reflection.MethodBase.GetCurrentMethod()!.Name}");
@@ -354,7 +476,6 @@ namespace PokerLibrary
 
             return board;
         }
-
         private List<Player> MakePlayers(List<Player> players)
         {
             //gamestate.LogMessages.Add($"{DateTime.Now} +  In  { System.Reflection.MethodBase.GetCurrentMethod()!.Name}");
@@ -372,17 +493,9 @@ namespace PokerLibrary
 
             return players;
         }
-
         private List<Seat> MakeSeats(List<Seat> seats)
         {
-            //gamestate.LogMessages.Add($"{DateTime.Now} +  In  { System.Reflection.MethodBase.GetCurrentMethod()!.Name}");
-            //for (int i = 1;i < 10; i++)
-            //{
-            //    seats.Add(new Seat(i));
-            //}
-
-            //List<int> seatnumbers = new List<int>() { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
-
+            
             var seatnumbers = Enumerable.Range(1, 9).ToList();
 
             seatnumbers.ForEach(x => 
@@ -397,7 +510,6 @@ namespace PokerLibrary
 
 
         }
-
         private GameState MakeTestTable( GameState gamestate)
         {
             //fill a table for testing
@@ -428,10 +540,6 @@ namespace PokerLibrary
 
             return deck;
         }
-
-
-
-       
     }
 }
 

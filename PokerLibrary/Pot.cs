@@ -20,5 +20,15 @@ namespace PokerLibrary
             this.size = 0;
 
         }
+
+        public override string ToString()
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append($"|POT NUMBER {id} |POT SIZE {size}");
+
+
+
+            return sb.ToString();
+        }
     }
 }
