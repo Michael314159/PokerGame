@@ -101,17 +101,51 @@ namespace PokerLibrary
             LogDisplay(strDisplayMessage);
             WriteToConsole(strMessage);
 
-            //LinkedListNode<Seat> currentNode = seats.First;
-            //Console.WriteLine("I am looping through list");
-            //while (currentNode != null)
-            //{
-            //    Console.WriteLine(currentNode.Value.ToString());
-            //    if (currentNode.Value.Number == 7) {
-            //        Console.WriteLine("FOUND SEAT 7");    
-            //    }
-            //    currentNode = currentNode.Next;
-            //}
+            //Add some players to the seats
+            MakePlayers(this.players);
 
+            //Fill the table...
+            foreach (var item in Enumerable.Range(0, seats.Count))
+            {
+                seats.ToList().ForEach(x =>
+                {
+                    x.AddPlayer(players[x.Number - 1]);
+                    x.IsPlaying = true;
+                    
+                });
+            }
+
+            foreach (var item in seats)
+            {
+                Console.WriteLine(item.ToString());
+            }
+
+
+
+            LinkedListNode<Seat> currentNode = seats.First;
+            Console.WriteLine("I am looping through list");
+            while (currentNode != null)
+            {
+                Console.WriteLine(currentNode.Value.ToString());
+                if (currentNode.Value.Number == 1)
+                {
+                    currentNode.Value.IsDealer = true;
+                }
+                if (currentNode.Value.Number == 2)
+                {
+                    currentNode.Value.IsSmallBlind = true;
+                }
+                if (currentNode.Value.Number == 3)
+                {
+                    currentNode.Value.IsBigBlind = true;
+                }
+                currentNode = currentNode.Next;
+            }
+            Console.WriteLine("SEATS");
+            foreach (var item in seats)
+            {
+                Console.WriteLine(item.ToString());
+            }
 
             return true;
         }
