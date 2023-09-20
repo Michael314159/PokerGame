@@ -19,7 +19,20 @@ namespace PokerLibrary
         List<Card> board;
         decimal current_wager;
 
-        
+        //The GameState object IS the game.
+        //It is created with references to ALL the game objects,
+        //
+        //The game progresses by sending the GameObject to the function
+        //that models the next event in the game.
+        //The function is passed the GameStae, Modifys it, and returns the new Gamestate
+        //That makes it mostly functional. Mimics Immutable States.
+
+        GameState gamestate;
+
+        //this is the log 
+        public List<string> Log = new List<string>();
+        //this is what we display
+        public List<string> Display = new List<string>();
 
         //Constuctor
         public TheGame() {
@@ -32,20 +45,32 @@ namespace PokerLibrary
             this.board = new List<Card>();
             this.pots = new List<Pot>();
 
+            
+            this.Log = new List<string>();
+            this.Display = new List<string>();
+
+            //Thers Seven objects ARE the game.
+
+            this.gamestate = new GameState(this.seats,this.players,this.deck,
+                                             this.board,this.current_wager,
+                                             this.Log,this.Display);
+
+
             // As A functional program, we only are born,live,and die
-            StartTheGame();
-            PlayTheGame();
-            StopTheGame();
+            this.gamestate = StartTheGame(this.gamestate);
+            this.gamestate = PlayTheGame(this.gamestate);
+            this.gamestate = StopTheGame(this.gamestate);
+
         }
 
-        public bool StartTheGame() {
+        public GameState StartTheGame(GameState gamestate) {
             string strMethodName = System.Reflection.MethodBase.GetCurrentMethod()!.Name;
             string strMessage = "Game Starting";
             string strLogMessage = $"{strMethodName} {strMessage}";
             string strDisplayMessage = $"{strMessage}";
-            LogMessage(strLogMessage);
-            LogDisplay(strDisplayMessage);
-            WriteToConsole(strMessage);
+
+            Log.Add(strLogMessage);
+            Display.Add(strDisplayMessage);
 
             // Make the needed game objects
             MakeDeck(this.deck);
@@ -54,82 +79,148 @@ namespace PokerLibrary
             MakePots(this.pots);
             MakeCurrentWager(this.current_wager);
 
-            //DEBUG
-            //Display what we have so far
 
-            Console.WriteLine("DECK");
-            foreach (Card item in deck)
-            {
-                Console.WriteLine(item.ToString());
-            }
-            Console.WriteLine("SEATS");
-            foreach (var item in seats)
-            {
-                Console.WriteLine(item.ToString());
-            }
-            Console.WriteLine("BOARD");
-            foreach (var item in board)
-            {
-                Console.WriteLine(item.ToString());
-            }
-            Console.WriteLine("POTS");
-            foreach (var item in pots)
-            {
-                Console.WriteLine(item.ToString());
-            }
-            Console.WriteLine("WAGER");
-            Console.WriteLine(current_wager.ToString());
-            //MakePlayers(this.players);
-
-            //for (LinkedListNode<Seat> node = this.seats.First; node != null; node = node.Next)
-            //{
-            //    Console.WriteLine("NODE:" + node.Value);
-            //}
-
-            //Console.WriteLine(this.deck[5].ToString());
-
-
-
-            return true;
+            return gamestate;
         }
-        public bool PlayTheGame() {
+        public GameState PlayTheGame(GameState gamestate) {
             string strMethodName = System.Reflection.MethodBase.GetCurrentMethod()!.Name;
             string strMessage = "Game Playing";
             string strLogMessage = $"{strMethodName} {strMessage}";
             string strDisplayMessage = $"{strMessage}";
-            LogMessage(strLogMessage);
-            LogDisplay(strDisplayMessage);
-            WriteToConsole(strMessage);
 
+            Log.Add(strLogMessage);
+            Display.Add(strDisplayMessage);
+
+            //HACK ALERT
+            //HACK ALERT
             //Add some players to the seats
-            MakePlayers(this.players);
+            gamestate = MakePlayers(gamestate);
+            gamestate = SeatPlayers(gamestate);
+           
+            //The game loop
 
-            //Fill the table...
-            foreach (var item in Enumerable.Range(0, seats.Count))
+            gamestate = Gameloop(gamestate);
+
+            return gamestate; 
+        }
+        public GameState StopTheGame(GameState gamestate) {
+            string strMethodName = System.Reflection.MethodBase.GetCurrentMethod()!.Name;
+            string strMessage = "Game Stopping";
+            string strLogMessage = $"{strMethodName} {strMessage}";
+            string strDisplayMessage = $"{strMessage}";
+
+            Log.Add(strLogMessage);
+            Display.Add(strDisplayMessage);
+
+
+
+            //Save the logs
+            gamestate = WriteLogs(gamestate);
+            return gamestate;
+        }
+
+
+        #region Helper Methods
+
+        private  GameState Gameloop(GameState gamestate)
+        {
+            string strMethodName = System.Reflection.MethodBase.GetCurrentMethod()!.Name;
+            string strMessage = "Entering Game Loop";
+            string strLogMessage = $"{strMethodName} {strMessage}";
+            string strDisplayMessage = $"{strMessage}";
+
+            Log.Add(strLogMessage);
+            Display.Add(strDisplayMessage);
+
+
+            bool gameover = false;
+
+            while (gameover != true)
             {
-                seats.ToList().ForEach(x =>
+
+
+                Console.WriteLine("Welcome to the game!.");
+                Console.WriteLine("");
+
+                Console.WriteLine("Enter 'q' to quit.");
+                Console.WriteLine("Enter 'p' to play a hand.");
+
+                string answer = Console.ReadLine() ?? "q";
+
+                if (answer == "q")
                 {
-                    x.AddPlayer(players[x.Number - 1]);
-                    x.IsPlaying = true;
-                    
-                });
-            }
+                    gameover = true;
+                }
 
-            foreach (var item in seats)
+                if (answer == "p")
+                {
+
+                    gamestate = PlayAHand(gamestate);
+
+                }
+
+
+            }
+            return gamestate;
+        }
+        private GameState PlayAHand(GameState gamestate)
+        {
+            string strMethodName = System.Reflection.MethodBase.GetCurrentMethod()!.Name;
+            string strMessage = "Play A Hand";
+            string strLogMessage = $"{strMethodName} {strMessage}";
+            string strDisplayMessage = $"{strMessage}";
+
+            Log.Add(strLogMessage);
+            Display.Add(strDisplayMessage);
+
+
+            gamestate = MoveDealerButton(gamestate);
+           
+
+            //gamestate = MoveBigBlindButton(gamestate);
+            //gamestate = MoveSmallBlindButton(gamestate);
+
+            //gamestate = DealPreFlop(gamestate);
+            //gamestate = PlayPreFlop(gamestate);
+            //gamestate = DealFlop(gamestate);
+            //gamestate = PlayFlop(gamestate);
+            //gamestate = DealTurn(gamestate);
+            //gamestate = PlayTurn(gamestate);
+            //gamestate = DealRiver(gamestate);
+            //gamestate = PlayRiver(gamestate);
+            //gamestate = AwardPots(gamestate);
+
+            return gamestate;
+        }
+        private GameState MoveDealerButton(GameState gamestate)
+        {
+            string strMethodName = System.Reflection.MethodBase.GetCurrentMethod()!.Name;
+            string strMessage = "Move Dealer Button";
+            string strLogMessage = $"{strMethodName} {strMessage}";
+            string strDisplayMessage = $"{strMessage}";
+
+            Log.Add(strLogMessage);
+            Display.Add(strDisplayMessage);
+
+            //Log the seats before the move
+            foreach (var item in gamestate.Seats)
             {
-                Console.WriteLine(item.ToString());
+                gamestate.LogGameView.Add(item.ToString());
+                gamestate.LogMessages.Add(item.ToString());
+                Console.WriteLine($"{item.ToString()}");
             }
 
+            //Now the hard part. 
 
-
-            LinkedListNode<Seat> currentNode = seats.First;
-            Console.WriteLine("I am looping through list");
+            LinkedListNode<Seat> currentNode = gamestate.Seats.First;
+            Console.WriteLine("I am looping through Seats");
             while (currentNode != null)
             {
                 Console.WriteLine(currentNode.Value.ToString());
                 if (currentNode.Value.Number == 1)
                 {
                     currentNode.Value.IsDealer = true;
+
                 }
                 if (currentNode.Value.Number == 2)
                 {
@@ -141,33 +232,10 @@ namespace PokerLibrary
                 }
                 currentNode = currentNode.Next;
             }
-            Console.WriteLine("SEATS");
-            foreach (var item in seats)
-            {
-                Console.WriteLine(item.ToString());
-            }
 
-            return true;
-        }
-        public bool StopTheGame() {
-            string strMethodName = System.Reflection.MethodBase.GetCurrentMethod()!.Name;
-            string strMessage = "Game Stoping";
-            string strLogMessage = $"{strMethodName} {strMessage}";
-            string strDisplayMessage = $"{strMessage}";
-            LogMessage(strLogMessage);
-            LogDisplay(strDisplayMessage);
-            WriteToConsole(strMessage);
-
-
-
-            //Save the logs
-            WriteLogs();
-            return true;
+            return gamestate;
         }
 
-
-
-        #region Helper Methods
         private decimal MakeCurrentWager(decimal wager)
         {
             //gamestate.LogMessages.Add($"{DateTime.Now} +  In  { System.Reflection.MethodBase.GetCurrentMethod()!.Name}");
@@ -196,7 +264,7 @@ namespace PokerLibrary
 
             return board;
         }
-        private List<Player> MakePlayers(List<Player> players)
+        private GameState MakePlayers(GameState gamestate)
         {
             //gamestate.LogMessages.Add($"{DateTime.Now} +  In  { System.Reflection.MethodBase.GetCurrentMethod()!.Name}");
             players.Clear();
@@ -210,10 +278,40 @@ namespace PokerLibrary
             players.Add(new Player("Harold", 800));
             players.Add(new Player("Indira", 900));
 
-
-            return players;
+            gamestate.Players = players;
+            return gamestate;
         }
+        private GameState SeatPlayers(GameState gamestate)
+        {
+            //gamestate.LogMessages.Add($"{DateTime.Now} +  In  { System.Reflection.MethodBase.GetCurrentMethod()!.Name}");
+            LinkedListNode<Seat> currentNode = gamestate.Seats.First;
+            Console.WriteLine("I am looping through Seats");
+            while (currentNode != null)
+            {
+                Console.WriteLine(currentNode.Value.ToString());
+                if (currentNode.Value.Number == 1)
+                {
+                    currentNode.Value.IsDealer = true;
+                   
+                }
+                if (currentNode.Value.Number == 2)
+                {
+                    currentNode.Value.IsSmallBlind = true;
+                }
+                if (currentNode.Value.Number == 3)
+                {
+                    currentNode.Value.IsBigBlind = true;
+                }
+                currentNode = currentNode.Next;
+            }
+            //Console.WriteLine("SEATS");
+            //foreach (var item in seats)
+            //{
+            //    Console.WriteLine(item.ToString());
+            //}
 
+            return gamestate;
+        }
         private LinkedList<Seat> MakeLinkedSeats(LinkedList<Seat> seats)
         {
             var seatnumbers = Enumerable.Range(1, 9).ToList();
@@ -249,7 +347,6 @@ namespace PokerLibrary
 
             return seats;
         }
-
         private List<Card> MakeDeck(List<Card> deck)
         {
             var cardnumbers = Enumerable.Range(1, 52).ToList();
@@ -267,41 +364,12 @@ namespace PokerLibrary
             return deck;
         }
         #endregion
-        #region Logging and debugging
-
-        //this is the log 
-        public List<string> Log = new List<string>();
-        //this is what we display
-        public List<string> Display = new List<string>();
-
-        public void WriteLogs()
+        public GameState WriteLogs(GameState gamestate)
         {
-            string dataPathlog = @"C:\Users\micha\pokergame.log";
-            File.WriteAllLines(dataPathlog, this.Log);
+            gamestate.WriteLog();
 
-            string dataPathdisplay = @"C:\Users\micha\pokergame.txt";
-            File.WriteAllLines(dataPathdisplay, this.Display);
+            return gamestate;
         }
 
-        public void WriteToConsole(string message)
-        {
-            Console.WriteLine(message);
-        }
-
-
-        //Add messsage to the log
-        private void LogMessage( string message )
-        {
-
-            Log.Add($"{DateTime.Now} {message}" );
-        }
-
-        //add message to the display log
-        private void LogDisplay(string message)
-        {
-
-            Display.Add($"{DateTime.Now} {message}");
-        }
-        #endregion
     }
 }

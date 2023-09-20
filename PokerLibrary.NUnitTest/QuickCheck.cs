@@ -16,9 +16,9 @@ namespace PokerLibrary.NUnitTest
         {
             Console.WriteLine(System.Reflection.MethodBase.GetCurrentMethod()!.Name);
 
-            List<Card> deck = new List<Card>();
+            //List<Card> deck = new List<Card>();
 
-            HiLevelGame game = new HiLevelGame();
+            //HiLevelGame game = new HiLevelGame();
 
             
         }              

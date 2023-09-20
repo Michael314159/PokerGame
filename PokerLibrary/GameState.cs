@@ -5,25 +5,23 @@ using System.Xml.Linq;
 
 namespace PokerLibrary
 {
-    internal class GameState
+    public class GameState
     {
-        public List<Seat> Seats { get; set; }
+        public LinkedList<Seat> Seats { get; set; }
         public List<Player> Players { get; set; }
         public List<Card> Deck { get; set; }
         public List<Card> Board { get; set; }
         public Decimal CurrentWager { get; set; }
 
-        public int LastReturnCode = 0;
         public List<string> LogMessages { get; set; }
         public List<string> LogGameView { get; set; }
 
 
-        public GameState(List<Seat> seats,
+        public GameState(LinkedList<Seat> seats,
                             List<Player> players,
                             List<Card> deck,
                             List<Card> board,
                             decimal wager,
-                            int lastReturnCode,
                             List<string> logMessages,
                             List<string> logGameView)
         {
@@ -32,29 +30,23 @@ namespace PokerLibrary
             this.Deck = deck;
             this.Board = board;
             this.CurrentWager = wager;
-            LastReturnCode = lastReturnCode;
-            LogMessages = logMessages;
-            LogGameView = logGameView;
+            this.LogMessages = logMessages;
+            this.LogGameView = logGameView;
+           
         }
 
         public void WriteLog()
         {
-            string dataPath = @"C:\Users\micha\pokergame.log";
-            File.WriteAllLines(dataPath, this.LogMessages);
+            string dataPathLog = @"C:\Users\micha\pokergame.log";
+            File.WriteAllLines(dataPathLog, this.LogMessages);
 
-
-
-        }
-
-        public void WriteGameView()
-        {
-            string dataPath = @"C:\Users\micha\pokergame.txt";
-            File.WriteAllLines(dataPath, this.LogGameView);
-
+            string dataPathTxt = @"C:\Users\micha\pokergame.txt";
+            File.WriteAllLines(dataPathTxt, this.LogGameView);
 
 
         }
 
+      
         public override string ToString()
         {
             StringBuilder sb = new StringBuilder();
@@ -72,19 +64,7 @@ namespace PokerLibrary
 
             sb.AppendLine($"{sbSeats}");
             sb.AppendLine($"");
-            sb.AppendLine($"");
-            sb.AppendLine($"");
-            sb.AppendLine($"");
-            sb.AppendLine($"");
-            sb.AppendLine($"");
-            sb.AppendLine($"");
-            sb.AppendLine($"");
-            sb.AppendLine($"");
-            sb.AppendLine($"");
-            sb.AppendLine($"");
-            sb.AppendLine($"");
-            sb.AppendLine($"");
-            sb.AppendLine($"");
+           
 
 
 
