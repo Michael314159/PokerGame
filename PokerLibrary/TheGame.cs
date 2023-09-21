@@ -12,7 +12,7 @@ namespace PokerLibrary
     public class TheGame
     {
         //The game objects needed for both logic and display
-        LinkedList<Seat> seats;
+        List<Seat> seats;
         List<Card> deck;
         List<Player> players;
         List<Pot> pots;
@@ -40,7 +40,7 @@ namespace PokerLibrary
             //These objects must exist
             // this._gameState = new GameState();
             this.deck = new List<Card>();
-            this.seats = new LinkedList<Seat>();
+            this.seats = new List<Seat>();
             this.players = new List<Player>();
             this.board = new List<Card>();
             this.pots = new List<Pot>();
@@ -73,7 +73,7 @@ namespace PokerLibrary
 
             // Make the needed game objects
             MakeDeck(this.deck);
-            MakeLinkedSeats(this.seats);
+            MakeSeats(this.seats);
             MakeBoard(this.board);
             MakePots(this.pots);
             MakeCurrentWager(this.current_wager);
@@ -125,7 +125,33 @@ namespace PokerLibrary
 
         #region Helper Methods
 
+        //Do something to each Seat circular starting from a particular seat
+        // until conditon reached.
 
+        private int NextSeatNumberWhereIsPlaying(GameState gamestate,int startAtSeatNumer)
+        {
+            //This where we start our search
+            int current_seatnumber = gamestate.Seats.FirstOrDefault(x => x.Number == startAtSeatNumer).Number;
+           
+            //Check each seat in order for the condiiton. Give up after one pass.
+            for (int i = 0; i < 9; i++)
+            {
+                //get the next seat number
+                int next_seatnumber = Seat.NextSeatNumber(current_seatnumber);
+                //if the next seat satisfies condtions, bingo
+                //otherwise check the next one
+
+                //is Playing?
+                //idx is one less than seatnumber....
+                if (gamestate.Seats[next_seatnumber - 1].IsPlaying == true)
+                {
+                    return gamestate.Seats[i].Number;
+                }
+
+               
+            }
+            return 0; //if we failed......
+        }
 
         private  GameState Gameloop(GameState gamestate)
         {
@@ -217,27 +243,7 @@ namespace PokerLibrary
 
             //Now the hard part. 
 
-            LinkedListNode<Seat> currentNode = gamestate.Seats.First;
-            Console.WriteLine("I am looping through Seats");
-            while (currentNode != null)
-            {
-                Console.WriteLine(currentNode.Value.ToString());
-                if (currentNode.Value.Number == 1)
-                {
-                    currentNode.Value.IsDealer = true;
-
-                }
-                if (currentNode.Value.Number == 2)
-                {
-                    currentNode.Value.IsSmallBlind = true;
-                }
-                if (currentNode.Value.Number == 3)
-                {
-                    currentNode.Value.IsBigBlind = true;
-                }
-                currentNode = currentNode.Next;
-            }
-
+            
             return gamestate;
         }
 
@@ -289,26 +295,26 @@ namespace PokerLibrary
         private GameState SeatPlayers(GameState gamestate)
         {
             //gamestate.LogMessages.Add($"{DateTime.Now} +  In  { System.Reflection.MethodBase.GetCurrentMethod()!.Name}");
-            LinkedListNode<Seat> currentNode = gamestate.Seats.First;
-            Console.WriteLine("I am looping through Seats");
-            while (currentNode != null)
-            {
-                Console.WriteLine(currentNode.Value.ToString());
-                if (currentNode.Value.Number == 1)
-                {
-                    currentNode.Value.IsDealer = true;
+            //<Seat> currentNode = gamestate.Seats.First;
+            //Console.WriteLine("I am looping through Seats");
+            //while (currentNode != null)
+            //{
+            //    Console.WriteLine(currentNode.Value.ToString());
+            //    if (currentNode.Value.Number == 1)
+            //    {
+            //        currentNode.Value.IsDealer = true;
                    
-                }
-                if (currentNode.Value.Number == 2)
-                {
-                    currentNode.Value.IsSmallBlind = true;
-                }
-                if (currentNode.Value.Number == 3)
-                {
-                    currentNode.Value.IsBigBlind = true;
-                }
-                currentNode = currentNode.Next;
-            }
+            //    }
+            //    if (currentNode.Value.Number == 2)
+            //    {
+            //        currentNode.Value.IsSmallBlind = true;
+            //    }
+            //    if (currentNode.Value.Number == 3)
+            //    {
+            //        currentNode.Value.IsBigBlind = true;
+            //    }
+            //    currentNode = currentNode.Next;
+            //}
             //Console.WriteLine("SEATS");
             //foreach (var item in seats)
             //{

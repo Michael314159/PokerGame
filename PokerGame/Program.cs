@@ -8,17 +8,16 @@ using PokerLibrary;
 using PokerLibrary.NUnitTest;
 using System.Diagnostics;
 using System.Text;
+using System.Linq;
+using System.Collections.Generic;
+using System.Collections;
 
 public class Program
 {
     private static void Main(string[] args)
     {
-       //HiLevelGame game = new HiLevelGame();
+       PokerRoom room = new PokerRoom();
 
-
-      // TheGame theGame = new TheGame();
-
-        PokerRoom room = new PokerRoom();
 
     }
 }

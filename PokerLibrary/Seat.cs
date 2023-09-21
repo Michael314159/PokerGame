@@ -87,5 +87,48 @@ namespace PokerLibrary
 
         }
        
+        //Seat should know its neighbor
+        // Seat are in a circular clockwise order
+
+        public static int NextSeatNumber(int number)
+        {
+            switch (number)
+            {
+                case 1: return 2;                 
+                case 2: return 3; 
+                case 3: return 4; 
+                case 4: return 5; 
+                case 5: return 6; 
+                case 6: return 7; 
+                case 7: return 8; 
+                case 8: return 9; 
+                case 9: return 1; 
+
+
+                default: throw new SystemException("NextSeatFataError");
+            }
+        }
+
+        //Sometime its easier to deal with index in a list rather than intrinsic seatnumber
+        //Assumes list is in 1,2,3,4,5,6,7,8,9 order
+        public static int NextSeatIdxNumber(int number)
+        {
+            switch (number)
+            {
+                case 1: return 2;
+                case 2: return 3;
+                case 3: return 4;
+                case 4: return 5;
+                case 5: return 6;
+                case 6: return 7;
+                case 7: return 8;
+                case 8: return 9;
+                case 9: return 0;
+
+
+                default: throw new SystemException("NextSeatFataError");
+            }
+        }
+
     }
 }

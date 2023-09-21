@@ -7,7 +7,7 @@ namespace PokerLibrary
 {
     public class GameState
     {
-        public LinkedList<Seat> Seats { get; set; }
+        public List<Seat> Seats { get; set; }
         public List<Player> Players { get; set; }
         public List<Card> Deck { get; set; }
         public List<Card> Board { get; set; }
@@ -17,7 +17,7 @@ namespace PokerLibrary
         public List<string> LogGameView { get; set; }
 
 
-        public GameState(LinkedList<Seat> seats,
+        public GameState(List<Seat> seats,
                             List<Player> players,
                             List<Card> deck,
                             List<Card> board,

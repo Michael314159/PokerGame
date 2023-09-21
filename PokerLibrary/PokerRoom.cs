@@ -22,6 +22,8 @@ namespace PokerLibrary
     {
         //The game 
         TheGame game;
+        //The player list
+        List<Player> players;
 
         bool IsSeatAvailble = false;
 
@@ -35,6 +37,9 @@ namespace PokerLibrary
         { 
             //Have an empty but ready game table availble
             this.game = new TheGame();
+
+            //prospective players
+            this.players = new List<Player>();
 
             //A dictionary of statements that can be printed
             this.statements = MakeStatementDictionary();
@@ -63,6 +68,8 @@ namespace PokerLibrary
                 if (answer == "w") { Wait(); quit = true; };
                 if (answer == "l") { Leave(); quit = true; };
                 if (answer == "sp") { ShowPlayers(); quit = true; };
+                if (answer == "q") { QDirty(); quit = true; };
+
 
             }
 
@@ -74,10 +81,9 @@ namespace PokerLibrary
             string strMethodName = System.Reflection.MethodBase.GetCurrentMethod()!.Name;
             Console.WriteLine(strMethodName);
 
-            if (game.gamestate.Seats.Select(x => x.HasPlayer == true).Count() > 0) 
+            if (this.players.Count > 0) 
             {
-                game.gamestate.Seats.Select(x => x.HasPlayer == true)
-                                     .ToList().ForEach(x => Console.WriteLine());
+                players.ForEach(x => Console.WriteLine(x.ToString()));
             } else
             {
                 Console.WriteLine("None to show");
@@ -102,35 +108,36 @@ namespace PokerLibrary
 
                 if (name.Length > 0 && name.Length < 10) {
                     Player p = new Player(name, 0);
-                    if (game.gamestate.Seats.Select(x => x.HasPlayer).Count() < 9){
-                        //seat available
-                        foreach (var item in game.gamestate.Seats)
-                        {
-                            if (!item.HasPlayer)
-                            {
-                                item.AddPlayer(p);
-                                Console.WriteLine($"{p.Name} added to the game");
-                                break;
+                    this.players.Add(p);
+                    //if (game.gamestate.Seats.Select(x => x.HasPlayer).Count() < 9){
+                    //    //seat available
+                    //    foreach (var item in game.gamestate.Seats)
+                    //    {
+                    //        if (!item.HasPlayer)
+                    //        {
+                    //            item.AddPlayer(p);
+                    //            Console.WriteLine($"{p.Name} added to the game");
+                    //            break;
 
-                            }
-                        }
-                        break;
-                    } else
-                    {
-                        foreach (var item in game.gamestate.Seats)
-                        {
-                            if (!item.HasPlayer)
-                            {
-                                item.AddPlayer(p);
-                                Console.WriteLine($"{p.Name} added to the waiting list");
-                                break;
+                    //        }
+                    //    }
+                    //    break;
+                    //} else
+                    //{
+                    //    foreach (var item in game.gamestate.Seats)
+                    //    {
+                    //        if (!item.HasPlayer)
+                    //        {
+                    //            item.AddPlayer(p);
+                    //            Console.WriteLine($"{p.Name} added to the waiting list");
+                    //            break;
 
-                            }
+                    //        }
 
-                        }
-                        break;
-                    }
-                    throw new SystemException("Unable to add player. Call the Floor.");
+                    //    }
+                    //    break;
+                    //}
+                    //throw new SystemException("Unable to add player. Call the Floor.");
                 }
                 Console.Write($"{name} is not a valid name.");
                 MainMenu();
@@ -140,7 +147,12 @@ namespace PokerLibrary
         }
 
        
+        public  void QDirty()
+        {
 
+            string strMethodName = System.Reflection.MethodBase.GetCurrentMethod()!.Name;
+            Console.WriteLine(strMethodName);
+        }
        
 
         private void Leave()
