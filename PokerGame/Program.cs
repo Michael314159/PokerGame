@@ -16,9 +16,9 @@ public class Program
        //HiLevelGame game = new HiLevelGame();
 
 
-       TheGame theGame = new TheGame();
+      // TheGame theGame = new TheGame();
 
-
+        PokerRoom room = new PokerRoom();
 
     }
 }

@@ -27,7 +27,7 @@ namespace PokerLibrary
         //The function is passed the GameStae, Modifys it, and returns the new Gamestate
         //That makes it mostly functional. Mimics Immutable States.
 
-        GameState gamestate;
+        public GameState gamestate;
 
         //this is the log 
         public List<string> Log = new List<string>();
@@ -58,8 +58,7 @@ namespace PokerLibrary
 
             // As A functional program, we only are born,live,and die
             this.gamestate = StartTheGame(this.gamestate);
-            this.gamestate = PlayTheGame(this.gamestate);
-            this.gamestate = StopTheGame(this.gamestate);
+            
 
         }
 
@@ -94,12 +93,12 @@ namespace PokerLibrary
             //HACK ALERT
             //HACK ALERT
             //Add some players to the seats
-            gamestate = MakePlayers(gamestate);
-            gamestate = SeatPlayers(gamestate);
+            //gamestate = MakePlayers(gamestate);
+            //gamestate = SeatPlayers(gamestate);
            
             //The game loop
 
-            gamestate = Gameloop(gamestate);
+            //gamestate = Gameloop(gamestate);
 
             return gamestate; 
         }
@@ -119,8 +118,14 @@ namespace PokerLibrary
             return gamestate;
         }
 
+        
+
+
+
 
         #region Helper Methods
+
+
 
         private  GameState Gameloop(GameState gamestate)
         {

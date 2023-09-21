@@ -21,7 +21,7 @@ namespace PokerLibrary
 
 
 
-    
+        public bool HasPlayer { get; set; }
         public bool IsPlaying { get; set; }
         public bool IsDealer { get; set; }
         public bool IsBigBlind { get; set; }
@@ -32,17 +32,20 @@ namespace PokerLibrary
 
             this.Number = number;
             this.Name = $"Seat {Number}";
+            this.HasPlayer = false ;
 
         }
 
         public void AddPlayer(Player player)
         {
             this.Player = player;
+            this.HasPlayer = true ;
         }
 
         public void RemovePlayer()
         {
             this.Player = null;
+            this.HasPlayer = false ;
         }
 
 
