@@ -16,8 +16,8 @@ public class Program
 {
     private static void Main(string[] args)
     {
-       PokerRoom room = new PokerRoom();
+       //PokerRoom room = new PokerRoom();
 
-
+        TheGame game = new TheGame();
     }
 }
