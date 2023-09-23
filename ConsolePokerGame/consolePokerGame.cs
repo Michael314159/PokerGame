@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -17,55 +18,127 @@ namespace ConsolePokerGame
     public class consolePokerGame 
     {
 
-        //Handles the models View
-       // ConsoleView consoleView;
+        // Properties required to model the game
+    
+        public List<Seat> Seats { get; set; }
+        public List<Player> Players { get; set; }
+        public List<Card> Deck { get; set; }
+        public List<Card> Board {  get; set; }
 
-        //Maps the Model to the view
-        ConsoleViewModel ConsoleViewModel;
+        public List<Pot> Pots { get; set; }
 
-        // Properties required by the interfaces
-
-        List<Seat> seats;
-        List<Card> board;
-        List<Card> deck;
-        List<Player> player;
-        List<Pot> pots;
-        GameLog log;
+        public GameLog Log { get; set; }
+        
       
         //Constructor
         public consolePokerGame() {
-            this.seats = new List<Seat>();
-            this.board = new List<Card>();
-            this.deck = new List<Card>();
-            this.player = new List<Player>();
-            this.pots = new List<Pot>();
-            this.log = new GameLog();
 
-            //this.consoleView = new ConsoleView();
-            this.ConsoleViewModel = new ConsoleViewModel();
+            this.Seats = new List<Seat>();
+            this.Board = new List<Card>();
+            this.Deck = new List<Card>();
+            this.Players = new List<Player>();
+            this.Pots = new List<Pot>();
+            this.Log = new GameLog();
+
+            this.Seats.Add(new Seat(1));
+            this.Seats.Add(new Seat(2));
+            this.Seats.Add(new Seat(3));
+            this.Seats.Add(new Seat(4));
+            this.Seats.Add(new Seat(5));
+            this.Seats.Add(new Seat(6));
+            this.Seats.Add(new Seat(7));
+            this.Seats.Add(new Seat(8));
+            this.Seats.Add(new Seat(9));
 
             StartGame();
         }
 
         private void StartGame()
         {
-            this.log.AddToLog(System.Reflection.MethodBase.GetCurrentMethod()!.Name);
+            this.Log.AddToLog(System.Reflection.MethodBase.GetCurrentMethod()!.Name);
+           
 
-            //This is how we abstract away the Display responsibilities of the game object
-            ConsoleViewModel.ConsoleView.Display();
 
             PlayGame();
         }
         private void PlayGame()
         {
-            this.log.AddToLog(System.Reflection.MethodBase.GetCurrentMethod()!.Name);
+            this.Log.AddToLog(System.Reflection.MethodBase.GetCurrentMethod()!.Name);
 
             EndGame();
         }
         private void EndGame()
         {
-            this.log.AddToLog(System.Reflection.MethodBase.GetCurrentMethod()!.Name);
-            this.log.WriteLog();
+            this.Log.AddToLog(System.Reflection.MethodBase.GetCurrentMethod()!.Name);
+
+            //some test stuff
+            this.Players.Add(new Player("fred"));
+            this.Players.First().PlayerHoleCards.Add(new Card(11));
+            this.Players.First().PlayerHoleCards.Add(new Card(12));
+
+
+
+            this.Log.WriteLog();
+            Console.WriteLine(this.ToString());
+
+
+        }
+
+        public override string ToString()
+        {
+            StringBuilder sb = new StringBuilder();
+            // A dictionary that contains every instance Property and its value
+            Dictionary<string, object> dictProperties = new Dictionary<string, object>();
+
+            //Get all the properties and their valuse for this instance
+            PropertyInfo[] RetrieveProperties()
+            {
+                //object is this instance
+                var type = this.GetType();
+                return type.GetProperties();
+            }
+
+            //Place this instances properties and values into a var
+            var varProperties = RetrieveProperties();
+
+            //Place into dictionary a dictionary to hold this property information
+            foreach (var property in varProperties)
+            {
+                dictProperties.Add(property.Name, property.GetValue(this));
+
+            }
+
+            ////Use this info for the ToString override
+            foreach (var item in dictProperties)
+            {
+                sb.AppendLine(item.Key + ": " + item.Value);
+            }
+            //Summarry line of most relevant info
+            //sb.Append($"|SEAT NUMBER {Number} |DB {IsDealer} |SB {IsSmallBlind} |BB {IsBigBlind}");
+
+            foreach(var item in Seats)
+            {
+                sb.Append($"|SEAT NUMBER {item.Seatnumber} |DB {item.IsDealerButton} |SB {item.IsSmallBlind} |BB {item.IsBigBlind}");
+                sb.AppendLine("");
+            }
+            sb.AppendLine($"");
+
+            foreach (var item in Players)
+            {
+                sb.Append($"|PLAYER NAME {item.PlayerName} |STACK {item.PlayerStack}");
+
+                if (item.PlayerHoleCards.Count > 0)
+                {
+                    List<Card> cards = item.PlayerHoleCards;
+                    string c1 = cards[0].id.ToString();
+                    string c2 = cards[1].id.ToString();
+
+                    sb.AppendLine($"| HOLECARDS [{c1}] [{c2}]");
+                };
+            }
+            sb.AppendLine($"");
+
+            return sb.ToString();
         }
     }
 }

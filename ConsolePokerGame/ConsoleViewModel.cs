@@ -10,11 +10,15 @@ namespace ConsolePokerGame
     
     public class ConsoleViewModel
     {
-        public ConsoleView ConsoleView { get; set; }
+        private consolePokerGame consolePokerGame;
+        private ConsoleView ConsoleView;
+
+
 
         public ConsoleViewModel() { 
         
             this.ConsoleView = new ConsoleView();
+            this.consolePokerGame = new consolePokerGame();
         }   
 
         public void DisplayView()
